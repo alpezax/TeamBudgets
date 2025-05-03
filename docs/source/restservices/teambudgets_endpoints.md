@@ -267,7 +267,7 @@ curl -X POST "http://localhost:8000/trabajador/" \
            "categoria": "<ID_DE_LA_CATEGORIA>",
            "alias": "pperezg",
            "tags": ["go"],
-           "workpool": ["DEC"],
+           "workpool": ["DECXS"],
            "dedicacion_mensual": {
                "05-2025": {"work": 20, "vacation": 2},
                "06-2025": {"work": 19, "vacation": 1}
@@ -336,3 +336,87 @@ curl -X GET "http://localhost:8000/trabajadores/dedicacion/05-2025"
 ```bash
 curl -X GET "http://localhost:8000/trabajadores/coste/2025-03"
 ```
+
+
+---
+
+## Documentos
+
+### 🔹 Crear un nuevo documento
+
+```bash
+curl -X POST http://localhost:8000/document/temporal \
+  -H "Content-Type: application/json" \
+  -d '{
+        "data": {
+          "nombre": "Álvaro",
+          "rol": "admin",
+          "activo": true
+        }
+      }'
+```
+
+---
+
+### 🔹 Obtener un documento completo (por ID opcional)
+
+```bash
+curl -X GET "http://localhost:8000/api/document/usuarios?id=662f1a4f7c1d4b6e9a0e325f"
+```
+
+---
+
+### 🔹 Obtener un campo específico del documento
+
+```bash
+curl -X GET "http://localhost:8000/api/document/usuarios/field?path=nombre&id=662f1a4f7c1d4b6e9a0e325f"
+```
+
+---
+
+### 🔹 Establecer o actualizar un campo
+
+```bash
+curl -X POST http://localhost:8000/api/document/usuarios/field?id=662f1a4f7c1d4b6e9a0e325f \
+  -H "Content-Type: application/json" \
+  -d '{
+        "path": "rol",
+        "value": "editor"
+      }'
+```
+
+---
+
+### 🔹 Actualizar múltiples campos
+
+```bash
+curl -X PUT http://localhost:8000/api/document/usuarios?id=662f1a4f7c1d4b6e9a0e325f \
+  -H "Content-Type: application/json" \
+  -d '{
+        "updates": {
+          "nombre": "Álvaro S.",
+          "activo": false
+        }
+      }'
+```
+
+---
+
+### 🔹 Eliminar un campo específico
+
+```bash
+curl -X DELETE http://localhost:8000/api/document/usuarios/field?id=662f1a4f7c1d4b6e9a0e325f \
+  -H "Content-Type: application/json" \
+  -d '{
+        "path": "rol"
+      }'
+```
+
+---
+
+### 🔹 Eliminar el documento completo
+
+```bash
+curl -X DELETE "http://localhost:8000/api/document/usuarios?id=662f1a4f7c1d4b6e9a0e325f"
+```
+

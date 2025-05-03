@@ -164,5 +164,37 @@ def render_page():
     color_total = "green" if total_balance >= 0 else "red"
     st.markdown(f"<div style='color:{color_total}; font-size:24px; font-weight:bold;'>{total_balance:.2f} €</div>", unsafe_allow_html=True)
 
+    # Botón Guardar con disquete
+    # Botón Guardar con disquete
+    if st.button("💾 Guardar borrador"):
+        if not nombre_balance.strip():
+            st.error("⚠️ Debes asignar un nombre al balance antes de guardarlo.")
+        else:
+            draft_data = {
+                "nombre_balance": nombre_balance,
+                "mes": mes,
+                "año": año,
+                "items": st.session_state.registro_items,
+                "total_balance": total_balance,
+                "timestamp": datetime.now().isoformat()
+            }
+
+            try:
+                if "draft_id" in st.session_state:
+                    # Si ya existe, hacemos update
+                    response = update_fields("cash_flow_drafts", {"data": draft_data}, id=st.session_state.draft_id)
+                    st.success(f"Borrador actualizado correctamente. ID: {st.session_state.draft_id}")
+                else:
+                    # Si no existe, creamos uno nuevo
+                    response = create_document("cash_flow_drafts", draft_data)
+                    draft_id = response.get("id")
+                    if draft_id:
+                        st.session_state.draft_id = draft_id
+                        st.success(f"Borrador guardado correctamente. ID: {draft_id}")
+                    else:
+                        st.warning("Guardado, pero no se recibió un ID.")
+            except Exception as e:
+                st.error(f"Error al guardar borrador: {e}")
+            
 # Ejecutar
 render_page()

@@ -164,3 +164,40 @@ def get_ultima_tarifa():
 
 def get_tarifa_cercana(fecha):
     return requests.get(f"{API_URL}/constantes/tarifa-cercana/{fecha}").json()
+
+#************************************************************************
+# Funciones de la API para Documentos Genéricos
+#************************************************************************
+
+def get_document(collection_name, id=None):
+    params = {"id": id} if id else {}
+    return requests.get(f"{API_URL}/document/{collection_name}", params=params).json()
+
+def get_field(collection_name, path, id=None):
+    params = {"path": path}
+    if id:
+        params["id"] = id
+    return requests.get(f"{API_URL}/document/{collection_name}/field", params=params).json()
+
+def set_field(collection_name, path, value, id=None):
+    data = {"path": path, "value": value}
+    params = {"id": id} if id else {}
+    return requests.post(f"{API_URL}/document/{collection_name}/field", json=data, params=params).json()
+
+def update_fields(collection_name, updates, id=None):
+    data = {"updates": updates}
+    params = {"id": id} if id else {}
+    return requests.put(f"{API_URL}/document/{collection_name}", json=data, params=params).json()
+
+def delete_field(collection_name, path, id=None):
+    data = {"path": path}
+    params = {"id": id} if id else {}
+    return requests.delete(f"{API_URL}/document/{collection_name}/field", json=data, params=params).json()
+
+def delete_document(collection_name, id=None):
+    params = {"id": id} if id else {}
+    return requests.delete(f"{API_URL}/document/{collection_name}", params=params).json()
+
+def create_document(collection_name, data=None):
+    data = {"data": data or {}}
+    return requests.post(f"{API_URL}/document/{collection_name}", json=data).json()
