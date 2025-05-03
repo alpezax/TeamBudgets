@@ -17,17 +17,17 @@ def set_data(key: str, value):
     data = load_data()
     data[key] = value  
     save_data(data)
-    print(f"[SET] {key} = {value}")
+    #print(f"[SET] {key} = {value}")
 
 def set_data_bulk(new_data: dict):
     data = load_data()
     data.update(new_data)
     save_data(data)
-    print(f"[SET BULK] {str(new_data)}")
+    #print(f"[SET BULK] {str(new_data)}")
 
 def get_data(key: str):
     data = load_data()
     value = data.get(key)
-    print(f"[GET] {key} = {value}")
+    #print(f"[GET] {key} = {value}")
     return value
 

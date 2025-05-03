@@ -34,6 +34,8 @@ def render_gastos(item, idx, trabajadores, mes, año, meses):
     for g_idx, gasto in enumerate(item["gastos"]):
         background_color = f"background-color: rgba({(g_idx * 50) % 255}, {(g_idx * 100) % 255}, {(g_idx * 150) % 255}, 0.1);"
         with st.container():
+            
+            
             st.markdown(f'<div style="{background_color} padding: 10px; border-radius: 5px;">', unsafe_allow_html=True)
 
             nombres_trabajadores = [t["nombre"] for t in trabajadores]
@@ -50,7 +52,7 @@ def render_gastos(item, idx, trabajadores, mes, año, meses):
             dias_imputables = dedicacion["laborables"] - dedicacion["vacaciones"]
             horas_imputables = dias_imputables * get_horas_jornada()
 
-            coste_hora = trabajador.get("coste-hora-mensual", {}).get(mes_str, 48.5)
+            coste_hora = trabajador.get("coste-hora-mensual", {}).get(mes_str, 100)
             coste_total = round(horas_incurridas * coste_hora, 2)
             gasto_desc = f"{trabajador['nombre']} ({horas_incurridas} h x {coste_hora} €/h)"
 
@@ -83,7 +85,34 @@ def render_gastos(item, idx, trabajadores, mes, año, meses):
 
 # --- Render: Ítem individual ---
 def render_item(item, idx, proyectos, trabajadores, mes, año, meses):
-    st.markdown(f"### Ítem {idx + 1}")
+    st.markdown(f"---\n### Ítem {idx + 1}")
+
+    # --- Botón para ajustar ingreso o calcular horas necesarias ---
+    with st.container():
+        gasto_val = sum(g["valor"] for g in item["gastos"]) 
+
+        if st.button("⬅️ Calcular desde el gasto", key=f"calc_from_gasto_{idx}"):
+            #print(item)
+            if gasto_val > 0 and item["ingreso_val"] == 0:
+                #item["ingreso_val"] = gasto_val
+                st.info(f"Ingreso ajustado automáticamente a {gasto_val:.2f} € para cubrir el gasto. Correspondiente a {gasto_val/get_ultima_tarifa():.2f} Horas")
+
+            if item["ingreso_val"] > 0 and not item["gastos"]:
+                mes_num = meses.index(mes) + 1
+                mes_str = f"{año}-{mes_num:02d}"
+                costes = [t.get("coste-hora-mensual", {}).get(mes_str) for t in trabajadores]
+                costes = [c for c in costes if c]
+                coste_medio = sum(costes) / len(costes) if costes else 100
+                horas_estimadas = item["ingreso_val"] / coste_medio
+                st.info(f"Para cubrir {item['ingreso_val']:.2f} € se requerirían aproximadamente {horas_estimadas:.2f} h (coste medio {coste_medio:.2f} €/h)")
+
+            elif item["tipo_ingreso"] == "proyecto" and gasto_val > 0:
+                tarifa = get_ultima_tarifa()
+                horas_necesarias = gasto_val / tarifa
+                item["ingreso_val"] = gasto_val
+                item["horas"] = horas_necesarias
+                st.info(f"Para cubrir {gasto_val:.2f} € se requieren {horas_necesarias:.2f} h a {tarifa:.2f} €/h")
+
     col_ingreso, col_gasto = st.columns(2)
 
     with col_ingreso:
@@ -96,25 +125,32 @@ def render_item(item, idx, proyectos, trabajadores, mes, año, meses):
             ingreso_val = st.number_input("Monto ingreso (€)", value=item["ingreso_val"], key=f"ingreso_val_{idx}")
         else:
             proyecto_nombres = [p["nombre"] for p in proyectos]
-            proyecto_idx = next((i for i, p in enumerate(proyectos) if p["_id"] == item["proyecto_id"]), 0)
+            proyecto_idx = next((i for i, p in enumerate(proyectos) if p["_id"] == item.get("proyecto_id")), 0)
             proyecto_sel = st.selectbox("Seleccionar proyecto", proyecto_nombres, index=proyecto_idx, key=f"proyecto_sel_{idx}")
             proyecto = proyectos[proyecto_nombres.index(proyecto_sel)]
 
-            horas_input = st.number_input("Horas a contabilizar", min_value=0.0, step=0.5,
-                                          value=item["horas"], key=f"horas_{idx}")
+            # Actualización automática de las horas a contabilizar según el cálculo de ingreso
+            if gasto_val > 0:
+                horas_input = st.number_input("Horas a contabilizar", min_value=0.0, step=0.5,
+                                              value=item.get("horas", gasto_val / get_ultima_tarifa()), key=f"horas_{idx}")
+            else:
+                horas_input = st.number_input("Horas a contabilizar", min_value=0.0, step=0.5,
+                                              value=item.get("horas", 0.0), key=f"horas_{idx}")
+                
+            tarifa = get_ultima_tarifa()
             margen = proyecto["margen-contrato"]["margen"]
             horas_venta = proyecto["horas"]["venta"]
             horas_consumidas = proyecto["horas"]["consumidas"]
             horas_disponibles = (1 - margen) * horas_venta - horas_consumidas
             horas_restantes = horas_disponibles - horas_input
-            ingreso_val = round(horas_input * get_ultima_tarifa(), 2)
+            ingreso_val = round(horas_input * tarifa, 2)
             avance_total = (horas_consumidas + horas_input) / (horas_venta * (1 - margen)) * 100 if horas_venta > 0 else 0
 
             st.markdown(f"**Máximo horas permitidas:** {horas_disponibles:.2f}")
             st.markdown(f"**Horas restantes:** {horas_restantes:.2f}")
             st.markdown(f"**Avance del proyecto:** {avance_total:.2f} %")
 
-            ingreso_desc = f"{proyecto['nombre']} ({horas_input} h x {get_ultima_tarifa()} €)"
+            ingreso_desc = f"{proyecto['nombre']} ({horas_input} h x {tarifa} €)"
 
             item["proyecto_id"] = proyecto["_id"]
             item["horas"] = horas_input
@@ -126,12 +162,15 @@ def render_item(item, idx, proyectos, trabajadores, mes, año, meses):
         render_gastos(item, idx, trabajadores, mes, año, meses)
 
     ingreso_val = item["ingreso_val"]
-    gasto_val = sum(g["valor"] for g in item["gastos"])
+    gasto_val = sum(g["valor"] for g in item["gastos"])  # Asegurarse de que gasto_val siempre esté actualizado
     diferencia = ingreso_val - gasto_val
     color = "green" if diferencia >= 0 else "red"
     st.markdown(f"<div style='color:{color}; font-weight:bold;'>Diferencia: {diferencia:.2f} €</div>", unsafe_allow_html=True)
     st.markdown("---")
     return diferencia
+
+
+
 
 # --- Main Page Render ---
 def render_page():
@@ -182,11 +221,11 @@ def render_page():
             try:
                 if "draft_id" in st.session_state:
                     # Si ya existe, hacemos update
-                    response = update_fields("cash_flow_drafts", {"data": draft_data}, id=st.session_state.draft_id)
+                    response = update_fields("presupuestos_draft", {"data": draft_data}, id=st.session_state.draft_id)
                     st.success(f"Borrador actualizado correctamente. ID: {st.session_state.draft_id}")
                 else:
                     # Si no existe, creamos uno nuevo
-                    response = create_document("cash_flow_drafts", draft_data)
+                    response = create_document("presupuestos_draft", draft_data)
                     draft_id = response.get("id")
                     if draft_id:
                         st.session_state.draft_id = draft_id

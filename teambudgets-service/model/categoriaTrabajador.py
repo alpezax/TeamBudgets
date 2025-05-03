@@ -21,11 +21,12 @@ class CategoriaTrabajador:
         except Exception:
             return None
 
-    def create(self, nombre: str, clase: str, simbolo: str, csr: dict = None):
+    def create(self, nombre: str, clase: str, simbolo: str, defaultcsr: float, csr: dict = None):
         new_doc = {
             "nombre": nombre,
             "clase": clase,
             "simbolo": simbolo,
+            "defaultcsr": defaultcsr or 100, 
             "csr": csr or {}
         }
         result = self.collection.insert_one(new_doc)

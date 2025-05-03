@@ -9,7 +9,7 @@ def refresh_config():
     MONGO_URI = os.getenv("MONGO_URI")
     # Seleccionamos una base de datos en base a la cache
     entorno = serviceCache.get_data("ENTORNO")
-    print(f"Refrescando entorno: {entorno}")
+    #print(f"Refrescando entorno: {entorno}")
     if entorno == 'PRO':
         DB_NAME = os.getenv("DB_NAME")
     elif entorno == 'PRE':

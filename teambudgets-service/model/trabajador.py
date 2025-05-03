@@ -114,3 +114,23 @@ class Trabajador:
         if doc:
             return objectid_to_str(doc)
         return None
+    
+    def get_ultimo_coste_hora(self, id_str: str):
+        """
+        Retorna el último coste-hora mensual registrado para un trabajador, basado en la clave más reciente (yyyy-mm).
+        """
+        doc = self.get_by_id(id_str)
+        if not doc:
+            return None
+        
+        costes = doc.get("coste-hora-mensual", {})
+        if not costes:
+            return None
+
+        # Ordenar las claves yyyy-mm y obtener la más reciente
+        fechas_ordenadas = sorted(costes.keys(), reverse=True)
+        fecha_mas_reciente = fechas_ordenadas[0]
+        return {
+            "periodo": fecha_mas_reciente,
+            "coste_hora": costes[fecha_mas_reciente]
+        }    
