@@ -1,14 +1,13 @@
 import streamlit as st
 import requests
-
-API_URL = "http://localhost:8000/data"
+from config import API_URL
 
 def sidebar_config():
     st.sidebar.title("Configuración")
 
     # 1. Obtener lista de namespaces
     try:
-        response = requests.get(f"{API_URL}/ENTORNOS-DISPONIBLES")
+        response = requests.get(f"{API_URL}/data/ENTORNOS-DISPONIBLES")
         response.raise_for_status()
         namespaces_data = response.json()
         if isinstance(namespaces_data, dict):
@@ -21,7 +20,7 @@ def sidebar_config():
 
     # 2. Obtener namespace actual
     try:
-        response = requests.get(f"{API_URL}/ENTORNO")
+        response = requests.get(f"{API_URL}/data/ENTORNO")
         response.raise_for_status()
         current_namespace = response.json().get("ENTORNO")
     except Exception:
@@ -37,7 +36,7 @@ def sidebar_config():
         if new_namespace != current_namespace:
             try:
                 response = requests.post(
-                    f"{API_URL}",
+                    f"{API_URL}/data",
                     json={"data": {"ENTORNO": new_namespace}}
                 )
                 response.raise_for_status()

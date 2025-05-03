@@ -1,20 +1,51 @@
+version: "3.9"
+
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb-pyg
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=admin
+
+  mongo:
+    image: mongo:6.0
+    container_name: teambudgets-mongo
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data:/data/db
+      - mongo_data:/data/db
     networks:
-      - entorno-local_decrecorder-network
+      - teambudgets-net
 
-volumes:
-  mongo-data:
+  teambudgets-front:
+    build:
+      context: ../teambudgets-front
+      dockerfile: Dockerfile
+    ports:
+      - "8502:8501"
+    environment:
+      API_URL: http://teambudgets-service:8000
+    depends_on:
+      - teambudgets-service
+    networks:
+      - teambudgets-net
+
+  teambudgets-service:
+    build:
+      context: ../teambudgets-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/
+      DB_NAME: teambudgets
+      DB_NAME_PRE: teambudgets-pre
+      DB_NAME_TST1: teambudgets-tst-1
+      DB_NAME_TST2: teambudgets-tst-2
+      DB_NAME_TST3: teambudgets-tst-3
+    depends_on:
+      - mongo
+    networks:
+      - teambudgets-net
 
 networks:
-  entorno-local_decrecorder-network:
-    external: true
+  teambudgets-net:
+    driver: bridge
+
+volumes:
+  mongo_data:

@@ -262,7 +262,8 @@ def añadir_miembro_equipo(id_equipo, trabajador_id,participacion=100.0,nombre="
 def actualizar_participacion_miembro(id_equipo, trabajador_id, nueva_participacion,nombre=""):
     data = {
         "trabajador_id": trabajador_id,
-        "participacion": nueva_participacion
+        "participacion": nueva_participacion,
+        "nombre": nombre
     }
     response = requests.put(f"{API_URL}/equipo/{id_equipo}/miembro", json=data)
     try:

@@ -13,7 +13,9 @@ class Constantes:
                 "tiempo": {
                     "horas-jornada": 8
                 },
-                "tarifas": {}
+                "tarifas": {
+                    "2025-01": 48.5
+                }
             }
             self.collection.insert_one(default)
             return default
