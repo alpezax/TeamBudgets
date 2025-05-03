@@ -1,0 +1,10 @@
+{
+    "ENTORNO": "PRO",
+    "ENTORNOS-DISPONIBLES": [
+        "PRO",
+        "PRE",
+        "TST1",
+        "TST2",
+        "TST3"
+    ]
+}

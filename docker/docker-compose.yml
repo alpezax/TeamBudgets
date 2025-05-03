@@ -1,0 +1,20 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-pyg
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - entorno-local_decrecorder-network
+
+volumes:
+  mongo-data:
+
+networks:
+  entorno-local_decrecorder-network:
+    external: true
