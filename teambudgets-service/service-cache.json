@@ -1,5 +1,5 @@
 {
-    "ENTORNO": "PRO",
+    "ENTORNO": "TST1",
     "ENTORNOS-DISPONIBLES": [
         "PRO",
         "PRE",
