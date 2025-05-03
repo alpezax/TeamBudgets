@@ -27,11 +27,13 @@ class EquipoUpdateInput(BaseModel):
 
 @router.get("/")
 def get_all_equipos():
+    equipo_model = Equipo()
     return equipo_model.get_all()
 
 
 @router.get("/{id}")
 def get_equipo_by_id(id: str):
+    equipo_model = Equipo()
     result = equipo_model.get_by_id(id)
     if not result:
         raise HTTPException(status_code=404, detail="Equipo no encontrado")
@@ -40,12 +42,14 @@ def get_equipo_by_id(id: str):
 
 @router.post("/")
 def crear_equipo(equipo: EquipoCreate):
+    equipo_model = Equipo()
     equipo_id = equipo_model.create(nombre=equipo.nombre, descripcion=equipo.descripcion)
     return {"id": equipo_id}
 
 
 @router.put("/{id}")
 def update_equipo(id: str, data: EquipoUpdateInput):
+    equipo_model = Equipo()
     updated = equipo_model.update(id_str=id, nombre=data.nombre, miembros=data.miembros)
     if not updated:
         raise HTTPException(status_code=404, detail="Equipo no encontrado o sin cambios")
@@ -54,6 +58,7 @@ def update_equipo(id: str, data: EquipoUpdateInput):
 
 @router.delete("/{id}")
 def delete_equipo(id: str):
+    equipo_model = Equipo()
     deleted = equipo_model.delete(id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Equipo no encontrado")
@@ -67,6 +72,7 @@ def añadir_miembro_equipo(equipo_id: str, miembro: MiembroInput):
     :param equipo_id: ID del equipo.
     :param miembro: Diccionario con 'trabajador_id' y 'participacion'.
     """
+    equipo_model = Equipo()
     success = equipo_model.add_miembro(
         equipo_id=equipo_id,
         trabajador_id=miembro.trabajador_id,
@@ -80,6 +86,7 @@ def añadir_miembro_equipo(equipo_id: str, miembro: MiembroInput):
 
 @router.put("/{id}/miembro")
 def actualizar_participacion_miembro(id: str, miembro: MiembroInput):
+    equipo_model = Equipo()
     actualizado = equipo_model.actualizar_participacion_miembro(
         equipo_id=id,
         trabajador_id=miembro.trabajador_id,
