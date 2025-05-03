@@ -26,15 +26,7 @@ class DeleteFieldRequest(BaseModel):
 class CreateRequest(BaseModel):
     data: Optional[Dict] = {}
 
-@router.get("/document/{collection_name}")
-def get_document(collection_name: str, id: Optional[str] = None):
-    try:
-        doc_filter = {"_id": ObjectId(id)} if id else {}
-    except InvalidId:
-        raise HTTPException(status_code=400, detail="ID no válido")
 
-    document = Document(collection_name, doc_filter)
-    return document.get_document()
 
 @router.get("/document/{collection_name}/field")
 def get_field(collection_name: str, path: str, id: Optional[str] = None):
@@ -112,3 +104,12 @@ def create_document(collection_name: str, body: CreateRequest):
 
     # Convertir cualquier ObjectId en la respuesta a string
     return objectid_to_str(response_data)
+
+@router.get("/document/{collection_name}")
+def get_all_documents_route(collection_name: str):
+    try:
+        document = Document(collection_name)
+        documents = document.get_all_documents(collection_name)
+        return documents 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener documentos: {str(e)}")

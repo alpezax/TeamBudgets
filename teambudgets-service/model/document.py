@@ -1,7 +1,8 @@
 from db.mongo_connection import getDb
 from bson.objectid import ObjectId
 from typing import Optional, Dict, Any
-from utils import objectid_to_str
+from bson import ObjectId
+from utils.objectid_to_str import objectid_to_str
 
 class Document:
     def __init__(self, collection_name: str, document_filter: Optional[Dict[str, Any]] = None):
@@ -81,5 +82,12 @@ class Document:
         return str(self.document.get("_id")) if self.document else None
 
     def create(self, data: dict) -> ObjectId:
-        result = objectid_to_str.objectid_to_str(self.collection.insert_one(data))
+        result = objectid_to_str(self.collection.insert_one(data))
         return result.inserted_id
+
+        
+    def get_all_documents(self, collection_name: str) -> list[dict]:
+        collection = getDb()[collection_name]
+        cursor = collection.find()
+        documents = list(cursor)
+        return [objectid_to_str(doc) for doc in documents]

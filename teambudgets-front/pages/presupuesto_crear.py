@@ -211,8 +211,11 @@ def render_page():
         else:
             draft_data = {
                 "nombre_balance": nombre_balance,
+                "estado": "DRAFT",
+                "version": "1.0.0",
                 "mes": mes,
                 "año": año,
+                "history": {},
                 "items": st.session_state.registro_items,
                 "total_balance": total_balance,
                 "timestamp": datetime.now().isoformat()
@@ -221,11 +224,11 @@ def render_page():
             try:
                 if "draft_id" in st.session_state:
                     # Si ya existe, hacemos update
-                    response = update_fields("presupuestos_draft", {"data": draft_data}, id=st.session_state.draft_id)
+                    response = update_fields("presupuestos", {"data": draft_data}, id=st.session_state.draft_id)
                     st.success(f"Borrador actualizado correctamente. ID: {st.session_state.draft_id}")
                 else:
                     # Si no existe, creamos uno nuevo
-                    response = create_document("presupuestos_draft", draft_data)
+                    response = create_document("presupuestos", draft_data)
                     draft_id = response.get("id")
                     if draft_id:
                         st.session_state.draft_id = draft_id

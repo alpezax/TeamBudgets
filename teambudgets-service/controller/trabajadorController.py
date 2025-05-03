@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 from model.trabajador import Trabajador
+from utils.objectid_to_str import objectid_to_str
 
 router = APIRouter()
 trabajador_model = Trabajador()
@@ -34,7 +35,7 @@ def get_trabajador(id_str: str):
     trabajador_model = Trabajador()
     trabajador = trabajador_model.get_by_id(id_str)
     if trabajador:
-        return trabajador
+        return objectid_to_str(trabajador)
     raise HTTPException(status_code=404, detail="Trabajador no encontrado")
 
 
@@ -43,7 +44,7 @@ def get_trabajador_por_alias(alias: str):
     trabajador_model = Trabajador()
     trabajador = trabajador_model.get_by_alias(alias)
     if trabajador:
-        return trabajador
+        return objectid_to_str(trabajador)
     raise HTTPException(status_code=404, detail="Trabajador no encontrado por alias")
 
 

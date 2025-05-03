@@ -75,7 +75,7 @@ def eliminar_categoria(id):
     return requests.delete(f"{API_URL}/categoria-trabajador/{id}").json()
 
 #************************************************************************
-# Funciones de la API para Obficinas
+# Funciones de la API para Oficinas
 #************************************************************************
 def get_oficinas():
     return requests.get(f"{API_URL}/oficina/").json()
@@ -201,3 +201,71 @@ def delete_document(collection_name, id=None):
 def create_document(collection_name, data=None):
     data = {"data": data or {}}
     return requests.post(f"{API_URL}/document/{collection_name}", json=data).json()
+
+def get_documentos_de_coleccion(coleccion):
+    """
+    Recupera todos los documentos de una colección dada.
+    """
+    return requests.get(f"{API_URL}/document/{coleccion}").json()
+
+#************************************************************************
+# Funciones de la API para Equipos
+#************************************************************************
+
+def get_equipos():
+    return requests.get(f"{API_URL}/equipo/").json()
+
+def get_equipo(id):
+    return requests.get(f"{API_URL}/equipo/{id}").json()
+
+def crear_equipo(nombre, descripcion):
+    data = {
+        "nombre": nombre,
+        "descripcion": descripcion
+    }
+    response = requests.post(f"{API_URL}/equipo/", json=data)
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}
+
+def actualizar_equipo(id, nombre=None, miembros=None):
+    data = {}
+    if nombre is not None:
+        data["nombre"] = nombre
+    if miembros is not None:
+        data["miembros"] = miembros
+    return requests.put(f"{API_URL}/equipo/{id}", json=data).json()
+
+def eliminar_equipo(id):
+    return requests.delete(f"{API_URL}/equipo/{id}").json()
+
+def añadir_miembro_equipo(id_equipo, trabajador_id,participacion=100.0,nombre=""):
+    """
+    Añade un miembro a un equipo.
+    :param id_equipo: ID del equipo al que se añadirá el miembro.
+    :param trabajador_id: ID del trabajador que se añadirá al equipo.
+    :param participacion: Porcentaje de participación del trabajador (por defecto 100%).
+    :return: Resultado de la operación.
+    """
+    data = {
+        "trabajador_id": trabajador_id,
+        "participacion": participacion,
+        "nombre": nombre
+    }
+    response = requests.post(f"{API_URL}/equipo/{id_equipo}/miembro/", json=data)
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}
+
+def actualizar_participacion_miembro(id_equipo, trabajador_id, nueva_participacion,nombre=""):
+    data = {
+        "trabajador_id": trabajador_id,
+        "participacion": nueva_participacion
+    }
+    response = requests.put(f"{API_URL}/equipo/{id_equipo}/miembro", json=data)
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}

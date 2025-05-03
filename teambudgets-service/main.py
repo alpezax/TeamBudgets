@@ -7,6 +7,7 @@ from controller import trabajadorController
 from controller import datacacheController
 from controller import taskController
 from controller import documentController
+from controller import equipoController
 
 app = FastAPI()
 app.include_router(constantesController.router)
@@ -17,3 +18,4 @@ app.include_router(trabajadorController.router)
 app.include_router(datacacheController.router)
 app.include_router(taskController.router)
 app.include_router(documentController.router)
+app.include_router(equipoController.router)
