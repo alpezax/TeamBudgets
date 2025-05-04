@@ -62,6 +62,7 @@ def calcular_coste_equipo_por_mes(equipo_id: str, yyyy_mm: str):
             "id": trabajador_id,
             "nombre": nombre,
             "oficina": {"id": oficina_id, "nombre": nombre_oficina},
+            "workpool": trabajador.get("workpool"),
             "participacion": participacion,
             "dias-laborables_mes": dias_laborables,
             "dias-vacaciones": dias_vacaciones,
