@@ -7,3 +7,4 @@ Documentación de los servicios REST de la API TeamBudgets.
    :maxdepth: 2
 
    teambudgets_endpoints
+   calculo_costes
