@@ -20,19 +20,22 @@ class Proyecto:
             return self._to_dict(doc)
         except Exception:
             return None
-
-    def create(self, nombre: str, idext: str, descripcion: str, horas: dict = None, margen_contrato: dict = None):
+        
+    def create(self, nombre: str, idext: str, descripcion: str, horas: dict = None, margen_contrato: dict = None, tarifa_hora: float = None):
         new_doc = {
             "nombre": nombre,
             "idext": idext,
             "descripcion": descripcion,
             "horas": horas or {"venta": 0, "consumidas": 0},
-            "margen-contrato": margen_contrato or {}
+            "margen-contrato": margen_contrato or {},
+            "workpool": [],
+            "tarifa-hora": tarifa_hora 
         }
         result = self.collection.insert_one(new_doc)
         return str(result.inserted_id)
-
-    def update(self, id_str: str, nombre: str = None, idext: str = None, descripcion: str = None, horas: dict = None):
+    
+    def update(self, id_str: str, nombre: str = None, idext: str = None, descripcion: str = None,
+            horas: dict = None, workpool: list = None, tarifa_hora: float = None):
         update_fields = {}
         if nombre is not None:
             update_fields["nombre"] = nombre
@@ -42,6 +45,12 @@ class Proyecto:
             update_fields["descripcion"] = descripcion
         if horas is not None:
             update_fields["horas"] = horas
+        if workpool is not None:
+            update_fields["workpool"] = workpool
+        if tarifa_hora is not None:
+            update_fields["tarifa-hora"] = tarifa_hora 
+        if not update_fields:
+            return False
 
         result = self.collection.update_one(
             {"_id": ObjectId(id_str)},

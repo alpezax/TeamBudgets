@@ -112,16 +112,20 @@ def get_proyectos():
 def get_proyecto(id):
     return requests.get(f"{API_URL}/proyecto/{id}").json()
 
-def crear_proyecto(nombre, idext, descripcion, horas, margen_contrato):
+# Crear un proyecto con todos sus campos, incluyendo workpool y tarifa-hora
+def crear_proyecto(nombre, idext, descripcion, horas, margen_contrato, workpool=None, tarifa_hora=None):
     data = {
         "nombre": nombre,
         "idext": idext,
         "descripcion": descripcion,
         "horas": horas,
-        "margen_contrato": margen_contrato
+        "margen_contrato": margen_contrato,
+        "workpool": workpool or [],
+        "tarifa_hora": tarifa_hora  # Añadido campo tarifa-hora
     }
     return requests.post(f"{API_URL}/proyecto/", json=data).json()
 
+# Actualiza parcialmente un proyecto (nombre, horas, workpool, tarifa-hora, etc.)
 def actualizar_proyecto(id, data):
     return requests.put(f"{API_URL}/proyecto/{id}", json=data).json()
 
@@ -139,6 +143,10 @@ def get_margen_contrato(id, yyyy_mm):
 
 def set_margen_contrato(id, yyyy_mm, valor):
     return requests.put(f"{API_URL}/proyecto/{id}/margen-contrato/{yyyy_mm}", json=valor).json()
+
+# Obtener la tarifa por hora de un proyecto
+def get_tarifa_hora(id):
+    return requests.get(f"{API_URL}/proyecto/{id}/tarifa-hora").json()
 
 #************************************************************************
 # Funciones de la API para Constantes
@@ -218,10 +226,12 @@ def get_equipos():
 def get_equipo(id):
     return requests.get(f"{API_URL}/equipo/{id}").json()
 
-def crear_equipo(nombre, descripcion):
+def crear_equipo(nombre, descripcion, miembros=None, proyectos=None):
     data = {
         "nombre": nombre,
-        "descripcion": descripcion
+        "descripcion": descripcion,
+        "miembros": miembros or [],
+        "proyectos": proyectos or []
     }
     response = requests.post(f"{API_URL}/equipo/", json=data)
     try:
@@ -229,24 +239,26 @@ def crear_equipo(nombre, descripcion):
     except:
         return {"error": response.text}
 
-def actualizar_equipo(id, nombre=None, miembros=None):
+def actualizar_equipo(id, nombre=None, miembros=None, proyectos=None):
     data = {}
     if nombre is not None:
         data["nombre"] = nombre
     if miembros is not None:
         data["miembros"] = miembros
-    return requests.put(f"{API_URL}/equipo/{id}", json=data).json()
+    if proyectos is not None:
+        data["proyectos"] = proyectos
+    response = requests.put(f"{API_URL}/equipo/{id}", json=data)
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}
 
 def eliminar_equipo(id):
     return requests.delete(f"{API_URL}/equipo/{id}").json()
 
-def añadir_miembro_equipo(id_equipo, trabajador_id,participacion=100.0,nombre=""):
+def añadir_miembro_equipo(id_equipo, trabajador_id, participacion=100.0, nombre=""):
     """
     Añade un miembro a un equipo.
-    :param id_equipo: ID del equipo al que se añadirá el miembro.
-    :param trabajador_id: ID del trabajador que se añadirá al equipo.
-    :param participacion: Porcentaje de participación del trabajador (por defecto 100%).
-    :return: Resultado de la operación.
     """
     data = {
         "trabajador_id": trabajador_id,
@@ -259,13 +271,33 @@ def añadir_miembro_equipo(id_equipo, trabajador_id,participacion=100.0,nombre="
     except:
         return {"error": response.text}
 
-def actualizar_participacion_miembro(id_equipo, trabajador_id, nueva_participacion,nombre=""):
+def actualizar_participacion_miembro(id_equipo, trabajador_id, nueva_participacion, nombre=""):
     data = {
         "trabajador_id": trabajador_id,
         "participacion": nueva_participacion,
         "nombre": nombre
     }
     response = requests.put(f"{API_URL}/equipo/{id_equipo}/miembro", json=data)
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}
+
+def vincular_proyecto_equipo(id_equipo, id_proyecto):
+    """
+    Vincula un proyecto a un equipo.
+    """
+    response = requests.post(f"{API_URL}/equipo/{id_equipo}/vincular_proyecto/{id_proyecto}")
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}
+
+def desvincular_proyecto_equipo(id_equipo, id_proyecto):
+    """
+    Desvincula un proyecto de un equipo.
+    """
+    response = requests.delete(f"{API_URL}/equipo/{id_equipo}/desvincular_proyecto/{id_proyecto}")
     try:
         return response.json()
     except:

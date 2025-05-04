@@ -17,10 +17,25 @@ st.header("➕ Crear Equipo")
 with st.form("crear_equipo"):
     nombre = st.text_input("Nombre del equipo")
     descripcion = st.text_area("Descripción")
+
+    proyectos_disponibles = get_proyectos()
+    proyectos_dict = {f"{p['nombre']} ({p['_id']})": p['_id'] for p in proyectos_disponibles}
+    proyectos_seleccionados = st.multiselect("Proyectos a vincular", list(proyectos_dict.keys()))
+
     submitted = st.form_submit_button("Crear")
     if submitted:
         res = crear_equipo(nombre, descripcion)
-        st.success(f"Equipo creado: {res.get('_id')}")
+        if "_id" in res:
+            equipo_id = res["_id"]
+            st.success(f"Equipo creado: {equipo_id}")
+            for key in proyectos_seleccionados:
+                res_vinc = vincular_proyecto_equipo(equipo_id, proyectos_dict[key])
+                if "message" in res_vinc:
+                    st.info(f"Proyecto vinculado: {key}")
+                else:
+                    st.warning(f"No se pudo vincular {key}")
+        else:
+            st.error("Error al crear equipo.")
 
 # Actualizar equipo
 st.header("✏️ Actualizar Equipo")
@@ -33,6 +48,37 @@ if id_update:
         if st.button("Actualizar"):
             res = actualizar_equipo(id_update, nombre_u, descripcion_u)
             st.success(res.get("message"))
+
+        st.subheader("📌 Proyectos vinculados")
+        proyectos_vinculados = equipo.get("proyectos", [])
+        for pid in proyectos_vinculados:
+            proyecto = get_proyecto(pid)
+            col1, col2 = st.columns([4, 1])
+            col1.write(f"{proyecto.get('nombre')} ({pid})")
+            if col2.button("❌ Desvincular", key=f"desvincular_{pid}"):
+                res = desvincular_proyecto_equipo(id_update, pid)
+                if "message" in res:
+                    st.success(res["message"])
+                    st.experimental_rerun()
+                else:
+                    st.error(f"Error al desvincular: {res}")
+
+        st.subheader("➕ Añadir nuevos proyectos")
+        todos_proyectos = get_proyectos()
+        vinculados_ids = set(proyectos_vinculados)
+        disponibles = {f"{p['nombre']} ({p['_id']})": p['_id'] for p in todos_proyectos if p['_id'] not in vinculados_ids}
+
+        if disponibles:
+            nuevos = st.multiselect("Seleccionar proyectos a añadir", list(disponibles.keys()), key="add_proy")
+            if st.button("📎 Vincular proyectos seleccionados"):
+                for key in nuevos:
+                    res = vincular_proyecto_equipo(id_update, disponibles[key])
+                    if "message" in res:
+                        st.info(f"Proyecto vinculado: {key}")
+                    else:
+                        st.warning(f"No se pudo vincular {key}")
+        else:
+            st.info("No hay proyectos disponibles para añadir.")
 
 # Eliminar equipo
 st.header("🗑️ Eliminar Equipo")
@@ -49,7 +95,7 @@ if id_equipo:
     if "miembros_data" not in st.session_state:
         st.session_state.miembros_data = []
 
-    trabajadores = get_trabajadores()  # Para selector
+    trabajadores = get_trabajadores()
     trabajadores_dict = {f"{t['nombre']} ({t['_id']})": t['_id'] for t in trabajadores}
 
     col1, col2 = st.columns([2, 1])
@@ -70,7 +116,6 @@ if id_equipo:
                 "participacion": participacion
             })
 
-    # Mostrar miembros añadidos
     if st.session_state.miembros_data:
         st.subheader("📝 Miembros añadidos")
         for i, miembro in enumerate(st.session_state.miembros_data):
@@ -83,7 +128,6 @@ if id_equipo:
                 st.session_state.miembros_data.pop(i)
                 st.experimental_rerun()
 
-    # Guardar miembros
     if st.button("📤 Guardar miembros en equipo"):
         errores = []
         for miembro in st.session_state.miembros_data:
@@ -104,7 +148,6 @@ id_equipo_part = st.text_input("ID del equipo", key="editar_miembros")
 if id_equipo_part:
     equipo = get_equipo(id_equipo_part)
     
-    # Depuración: Imprimir el equipo para verificar si los miembros están presentes
     st.write("Equipo recibido:", equipo)
     
     if equipo and equipo.get("miembros"):
@@ -112,7 +155,6 @@ if id_equipo_part:
 
         nuevas_participaciones = {}
         for i, miembro in enumerate(equipo["miembros"]):
-            # Obtener el nombre del trabajador utilizando la API
             trabajador = get_trabajador(str(miembro["trabajador_id"]))
             if trabajador:
                 nombre_trabajador = trabajador.get("nombre", "Nombre no disponible")
@@ -120,7 +162,7 @@ if id_equipo_part:
                 nombre_trabajador = "Nombre no disponible"
 
             col1, col2 = st.columns([3, 1])
-            col1.write(nombre_trabajador)  # Mostrar el nombre del trabajador
+            col1.write(nombre_trabajador)
             valor_actual = miembro.get("participacion", 0)
             nuevas_participaciones[miembro["trabajador_id"]] = col2.number_input(
                 "Nuevo %", min_value=0, max_value=100, value=int(valor_actual), step=5, key=f"edit_part_{i}"
@@ -129,7 +171,7 @@ if id_equipo_part:
         if st.button("💾 Guardar participaciones actualizadas"):
             errores = []
             for trabajador_id, nueva_part in nuevas_participaciones.items():
-                res = actualizar_participacion_miembro(id_equipo_part, trabajador_id, nueva_part,nombre=nombre_trabajador)
+                res = actualizar_participacion_miembro(id_equipo_part, trabajador_id, nueva_part, nombre=nombre_trabajador)
                 if "message" not in res:
                     errores.append((trabajador_id, res))
             if errores:

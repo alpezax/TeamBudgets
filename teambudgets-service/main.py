@@ -9,6 +9,7 @@ from controller import taskController
 from controller import documentController
 from controller import equipoController
 from controller import costesEquipoServiceController
+from controller import autoBalanceServiceController
 
 app = FastAPI()
 app.include_router(constantesController.router)
@@ -20,4 +21,6 @@ app.include_router(datacacheController.router)
 app.include_router(taskController.router)
 app.include_router(documentController.router)
 app.include_router(equipoController.router)
+app.include_router(autoBalanceServiceController.router)
 app.include_router(costesEquipoServiceController.router)
+

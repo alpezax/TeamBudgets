@@ -2,7 +2,6 @@ import streamlit as st
 from components.sidebar import sidebar_config 
 from utils.objectApiCall import *
 
-
 # Título de la aplicación
 st.title("Gestión de Proyectos")
 sidebar_config()
@@ -27,9 +26,12 @@ with st.form("crear_proyecto"):
     margen_contrato = {
         "margen": st.number_input("Margen de contrato", min_value=0.0, format="%.2f")
     }
+    tarifa_hora = st.number_input("Tarifa por hora", min_value=0.0, format="%.2f")  # Campo de tarifa por hora
+    workpool_input = st.text_area("Workpool (separado por comas)", "")
+    workpool = [w.strip() for w in workpool_input.split(",")] if workpool_input else []
     submitted = st.form_submit_button("Crear Proyecto")
     if submitted:
-        res = crear_proyecto(nombre, idext, descripcion, horas, margen_contrato)
+        res = crear_proyecto(nombre, idext, descripcion, horas, margen_contrato, workpool, tarifa_hora)  # Añadido tarifa_hora
         st.success(f"Proyecto creado: {res}")
 
 # Actualizar proyecto
@@ -50,13 +52,20 @@ if id_update:
         margen = {
             "margen": st.number_input("Margen de contrato", min_value=0.0, value=margen_contrato_u.get("margen", 0.0), format="%.2f")
         }
+        tarifa_hora_u = proyecto.get("tarifa_hora", 0.0)  # Mostrar tarifa por hora
+        tarifa_hora = st.number_input("Tarifa por hora", min_value=0.0, value=tarifa_hora_u, format="%.2f")
+        workpool_u = proyecto.get("workpool", [])
+        workpool_input = st.text_area("Workpool (separado por comas)", ", ".join(workpool_u))
+        workpool = [w.strip() for w in workpool_input.split(",")] if workpool_input else []
         if st.button("Actualizar"):
             data = {
                 "nombre": nombre_u,
                 "idext": idext_u,
                 "descripcion": descripcion_u,
                 "horas": horas,
-                "margen_contrato": margen
+                "margen_contrato": margen,
+                "workpool": workpool,
+                "tarifa_hora": tarifa_hora  # Incluir tarifa-hora en la actualización
             }
             res = actualizar_proyecto(id_update, data)
             st.success("Proyecto actualizado correctamente" if res else "No se pudo actualizar el proyecto")

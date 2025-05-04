@@ -14,6 +14,8 @@ class Equipo:
             if "miembros" in doc:
                 for miembro in doc["miembros"]:
                     miembro["trabajador_id"] = str(miembro["trabajador_id"])
+            if "proyectos" in doc:
+                doc["proyectos"] = [str(pid) for pid in doc["proyectos"]]
         return doc
 
     def get_all(self):
@@ -26,13 +28,8 @@ class Equipo:
         except Exception:
             return None
 
-    def create(self, nombre: str, miembros: Optional[List[dict]] = None, descripcion: Optional[str] = ""):
-        """
-        Crea un nuevo equipo.
-        :param nombre: Nombre del equipo.
-        :param miembros: Lista de diccionarios con claves: trabajador_id (str) y participacion (float). Opcional.
-        :param descripcion: Texto descriptivo del equipo. Opcional.
-        """
+    def create(self, nombre: str, miembros: Optional[List[dict]] = None,
+               descripcion: Optional[str] = "", proyectos: Optional[List[str]] = None):
         miembros_normalizados = []
         if miembros:
             for m in miembros:
@@ -41,16 +38,19 @@ class Equipo:
                     "participacion": m.get("participacion", 100.0)
                 })
 
+        proyectos_obj = [ObjectId(p) for p in proyectos] if proyectos else []
+
         new_doc = {
             "nombre": nombre,
             "descripcion": descripcion,
-            "miembros": miembros_normalizados or []
+            "miembros": miembros_normalizados,
+            "proyectos": proyectos_obj
         }
 
         result = self.collection.insert_one(new_doc)
         return objectid_to_str(result.inserted_id)
 
-    def update(self, id_str: str, nombre: str = None, miembros: list = None):
+    def update(self, id_str: str, nombre: str = None, miembros: list = None, proyectos: List[str] = None):
         update_fields = {}
         if nombre is not None:
             update_fields["nombre"] = nombre
@@ -62,6 +62,8 @@ class Equipo:
                 } for m in miembros
             ]
             update_fields["miembros"] = miembros_normalizados
+        if proyectos is not None:
+            update_fields["proyectos"] = [ObjectId(p) for p in proyectos]
 
         result = self.collection.update_one(
             {"_id": ObjectId(id_str)},
@@ -74,14 +76,8 @@ class Equipo:
         return result.deleted_count > 0
 
     def add_miembro(self, equipo_id: str, trabajador_id: str, nombre: str, participacion: float = 100.0):
-        """
-        Agrega un miembro a un equipo.
-        :param equipo_id: ID del equipo donde se añadirá el miembro.
-        :param trabajador_id: ID del trabajador.
-        :param participacion: Porcentaje de participación del miembro.
-        """
         result = self.collection.update_one(
-            {"_id": ObjectId(equipo_id)},  # Encontramos el equipo por su ID
+            {"_id": ObjectId(equipo_id)},
             {"$push": {
                 "miembros": {
                     "trabajador_id": ObjectId(trabajador_id),
@@ -90,7 +86,7 @@ class Equipo:
                 }
             }}
         )
-        return result.modified_count > 0  # Retorna True si se modificó el equipo, False si no
+        return result.modified_count > 0
 
     def remove_miembro(self, equipo_id: str, trabajador_id: str):
         result = self.collection.update_one(
@@ -114,5 +110,19 @@ class Equipo:
                     "miembros.$.participacion": participacion
                 }
             }
+        )
+        return result.modified_count > 0
+
+    def vincular_proyecto(self, equipo_id: str, proyecto_id: str):
+        result = self.collection.update_one(
+            {"_id": ObjectId(equipo_id)},
+            {"$addToSet": {"proyectos": ObjectId(proyecto_id)}}
+        )
+        return result.modified_count > 0
+
+    def desvincular_proyecto(self, equipo_id: str, proyecto_id: str):
+        result = self.collection.update_one(
+            {"_id": ObjectId(equipo_id)},
+            {"$pull": {"proyectos": ObjectId(proyecto_id)}}
         )
         return result.modified_count > 0
