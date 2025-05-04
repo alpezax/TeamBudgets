@@ -3,6 +3,8 @@ from model.equipo import Equipo
 from model.oficina import Oficina
 from datetime import datetime
 from utils.objectid_to_str import objectid_to_str
+from dateutil.relativedelta import relativedelta
+from typing import List
 
 def calcular_coste_equipo_por_mes(equipo_id: str, yyyy_mm: str):
     equipo_model = Equipo()
@@ -86,3 +88,24 @@ def calcular_coste_equipo_por_mes(equipo_id: str, yyyy_mm: str):
             "coste": round(total_coste, 2)
         }
     })
+
+def forecast_coste_equipo(equipo_id: str, yyyy_mm_inicio: str, n_meses: int) -> List[dict]:
+    try:
+        fecha_inicio = datetime.strptime(yyyy_mm_inicio, "%Y-%m")
+    except ValueError:
+        return {"error": "Formato de fecha inválido. Usa 'YYYY-MM'"}
+
+    resultados_forecast = []
+
+    for i in range(n_meses):
+        fecha_obj = fecha_inicio + relativedelta(months=i)
+        yyyy_mm = fecha_obj.strftime("%Y-%m")
+        resultado = calcular_coste_equipo_por_mes(equipo_id, yyyy_mm)
+
+        # Si hay un error, se incluye también en la lista para visibilidad
+        resultados_forecast.append({
+            "mes": yyyy_mm,
+            "resultado": resultado
+        })
+
+    return resultados_forecast
