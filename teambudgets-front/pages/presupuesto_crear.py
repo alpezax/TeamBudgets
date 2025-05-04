@@ -24,6 +24,22 @@ def render_encabezado():
 
     return nombre_balance, mes, año, meses
 
+# --- Render: Selector de equipo ---
+def render_equipo_global_selector():
+    st.markdown("### Selección de equipo para el presupuesto")
+
+    equipos = get_equipos()
+    if not equipos:
+        st.warning("No hay equipos disponibles.")
+        return None
+
+    equipo_nombres = [e["nombre"] for e in equipos]
+    equipo_sel = st.selectbox("Seleccionar equipo", equipo_nombres, key="equipo_global_sel")
+    equipo = equipos[equipo_nombres.index(equipo_sel)]
+
+    st.markdown(f"**Equipo seleccionado:** {equipo['nombre']}")
+    return equipo
+
 # --- Render: Gastos por trabajador ---
 def render_gastos(item, idx, trabajadores, mes, año, meses):
     st.markdown("#### Trabajadores asociados")
@@ -174,8 +190,10 @@ def render_item(item, idx, proyectos, trabajadores, mes, año, meses):
 
 # --- Main Page Render ---
 def render_page():
+    
     nombre_balance, mes, año, meses = render_encabezado()
-
+    equipo_seleccionado = render_equipo_global_selector()
+    
     if "registro_items" not in st.session_state:
         st.session_state.registro_items = []
 
@@ -209,18 +227,38 @@ def render_page():
         if not nombre_balance.strip():
             st.error("⚠️ Debes asignar un nombre al balance antes de guardarlo.")
         else:
+            # Diccionario para traducir nombres de meses en español a números
+            meses_es = {
+                "Enero": 1, "Febrero": 2, "Marzo": 3, "Abril": 4,
+                "Mayo": 5, "Junio": 6, "Julio": 7, "Agosto": 8,
+                "Septiembre": 9, "Octubre": 10, "Noviembre": 11, "Diciembre": 12
+            }
+            # Convertir nombre del mes a número
+            mes_num = meses_es.get(mes.capitalize())  # Asegura capitalización correcta
+            # Validación opcional
+            if mes_num is None:
+                raise ValueError(f"Mes no reconocido: {mes}")
+            # Construir los campos adicionales
+            mes_anyo_str = f"{año}-{mes_num:02d}"
+            mes_anyo_timestamp = datetime.strptime(mes_anyo_str + "-01", "%Y-%m-%d").isoformat()
+            # Diccionario final
             draft_data = {
                 "nombre_balance": nombre_balance,
                 "estado": "DRAFT",
                 "version": "1.0.0",
-                "mes": mes,
+                "mes": mes,  # Ej: "Mayo"
                 "año": año,
+                "equipo": {
+                    "id": equipo_seleccionado["_id"],
+                    "ref": equipo_seleccionado["nombre"]
+                },
+                "mes_anyo_str": mes_anyo_str,             # Ej: "2025-05"
+                "mes_anyo_timestamp": mes_anyo_timestamp, # datetime object
                 "history": {},
-                "items": st.session_state.registro_items,
+                "imputaciones": st.session_state.registro_items,
                 "total_balance": total_balance,
                 "timestamp": datetime.now().isoformat()
             }
-
             try:
                 if "draft_id" in st.session_state:
                     # Si ya existe, hacemos update
