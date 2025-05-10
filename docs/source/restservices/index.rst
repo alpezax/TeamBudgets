@@ -8,3 +8,4 @@ Documentación de los servicios REST de la API TeamBudgets.
 
    teambudgets_endpoints
    calculo_costes
+   reports
