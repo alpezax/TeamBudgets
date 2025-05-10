@@ -2,7 +2,7 @@ import os
 import logging
 from services.autoBalanceService import calcular_balance_equipo
 from reports.autoBalanceReportTemplate import generar_pdf
-
+import json
 
 def generar_informe_balance(
     equipo_id: str,
@@ -23,7 +23,7 @@ def generar_informe_balance(
         dict: Resultado del proceso con status, logs e información del archivo generado (si aplica).
     """
     resultado = calcular_balance_equipo(equipo_id, yyyy_mm)
-
+    print(json.dumps(resultado))
     if resultado["status"] == "KO":
         logging.error(f"No se pudo generar el informe de balance para el equipo {equipo_id} en {yyyy_mm}")
         return resultado

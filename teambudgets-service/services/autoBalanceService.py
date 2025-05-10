@@ -94,7 +94,7 @@ def procesar_proyecto(proyecto_id: str, proyecto_model, coste_equipo, control_ho
     for trabajador in coste_equipo["trabajadores"]:
         workpools_trabajador = trabajador.get("workpool", [])
         workpools_proyecto = proyecto.get("workpool", [])
-        logging.debug(f"Evaluando workpool para Trabajador: {trabajador.get('nombre')} Proyecto: {proyecto.get('nombre')} -> Workpools trabajador {str(workpools_trabajador)}, Workpools proyecto: {str(workpools_proyecto)}")
+        logging.info(f"Evaluando workpool para Trabajador: {trabajador.get('nombre')} Proyecto: {proyecto.get('nombre')} -> Workpools trabajador {str(workpools_trabajador)}, Workpools proyecto: {str(workpools_proyecto)}")
 
         
         # Verificamos si hay algún workpool compartido entre trabajador y proyecto
@@ -140,6 +140,7 @@ def procesar_proyecto(proyecto_id: str, proyecto_model, coste_equipo, control_ho
 
 # Asigna trabajadores no asignados a proyectos de forma forzada
 def asignar_trabajadores_forzados(proyectos_info, trabajadores, total_balance, control_horas):
+    logging.info("Asignando trabajadores forzados")
     trabajadores_asignados = {
         t["id"] for p in proyectos_info for t in p["imputaciones"]
     }
@@ -212,6 +213,8 @@ def calcular_balance_equipo(equipo_id: str, yyyy_mm: str):
 
     #2.- Obtenemos los proyectos asignados al equipo. Estos representan los ingresos.
     control_horas = ControlHorasTrabajador(coste_equipo["trabajadores"])
+    proyectos = equipo.get("proyectos", [])
+    logging.info(f"Proyectos del equipo: {str(proyectos)}")
     for proyecto_id in equipo.get("proyectos", []):
         proyecto_info, error, balance = procesar_proyecto(proyecto_id, proyecto_model, coste_equipo, control_horas)
         if error:
