@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Factura</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="invoice">
+        <div class="invoice-header">
+            <div class="invoice-company">
+                <h1>Estado presupuestario</h1>
+            </div>
+            <div class="invoice-date">
+                <strong>Mes:</strong> {{ mes }}<br>
+                <strong>Referencia balance:</strong> {{ equipo_nombre }}<br>
+            </div>
+        </div>
+       
+
+        <!-- balance -->
+        <div class="page-break"></div>
+        <h2>Imputaciones</h2>
+        <div class="tabla-balance">
+            {% for proyecto in imputaciones %}
+              <div class="fila-proyecto">
+                <div class="columna-izquierda"><strong>{{ proyecto.idext }} : {{ proyecto.nombre }}</strong></div>
+                <div class="columna-derecha"></div>
+              </div>
+              {% for persona in proyecto.imputaciones %}
+                <div class="fila-imputacion">
+                  <div class="columna-izquierda">{{ persona.nombre }}</div>
+                  <div class="columna-derecha">
+                    {{ persona.imputacion['horas-a-imputar'] }}h / {{ persona.imputacion['coste-horas-a-imputar'] }} €
+                  </div>
+                </div>
+              {% endfor %}
+            {% endfor %}
+        </div>
+                <!-- Gastos -->
+                <div class="page-break"></div>
+                <div class="invoice-body">
+                    <h2>Costes por Trabajador</h2>
+                    {% for trabajador in trabajadores %}
+                    <div class="trabajador">
+                        <h4 class="recuadro-titulo">{{ trabajador.nombre }}</h4>
+                        <br>
+                        <i class="small-text">{{ trabajador.desc }}</i>
+                        <p class="small-text">
+                            <strong>Participación:</strong> {{ trabajador["participacion"] }},
+                            <strong>Días Laborables al Mes:</strong> {{ trabajador["dias-laborables_mes"] }},
+                            <strong>Días de Vacaciones:</strong> {{ trabajador["dias-vacaciones"] }},
+                            <strong>Días Imputables:</strong> {{ trabajador["dias-imputables"] }},
+                            <strong>Total de Horas:</strong> {{ trabajador["total-horas"] }},
+                            <strong>CSR:</strong> {{ trabajador["coste-hora-mensual"] }} €
+                        </p>
+                        <p><strong>Coste del Trabajador:</strong> {{ trabajador["coste-trabajador"] }} €</p>
+                    </div>
+                    {% endfor %}
+                </div>
+    
+                <div class="invoice-footer">
+                    <h3>Total Coste:</h3>
+                    <div class="total-cost">
+                        <p>{{ total_coste }} €</p>
+                    </div>
+                </div>
+    </div>
+</body>
+</html>
