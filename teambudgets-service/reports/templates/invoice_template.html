@@ -28,7 +28,7 @@
                 <div class="columna-derecha"></div>
               </div>
               {% for persona in proyecto.imputaciones %}
-                {% if persona.imputacion['horas-a-imputar'] != 0 %}
+                {% if persona.imputacion['horas-a-imputar'] > 0 %}
                   <div class="fila-imputacion">
                     <div class="columna-izquierda">{{ persona.nombre }}</div>
                     <div class="columna-derecha">
