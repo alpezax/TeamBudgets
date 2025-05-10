@@ -18,7 +18,6 @@
             </div>
         </div>
        
-
         <!-- balance -->
         <div class="page-break"></div>
         <h2>Imputaciones</h2>
@@ -29,43 +28,46 @@
                 <div class="columna-derecha"></div>
               </div>
               {% for persona in proyecto.imputaciones %}
-                <div class="fila-imputacion">
-                  <div class="columna-izquierda">{{ persona.nombre }}</div>
-                  <div class="columna-derecha">
-                    {{ persona.imputacion['horas-a-imputar'] }}h / {{ persona.imputacion['coste-horas-a-imputar'] }} €
+                {% if persona.imputacion['horas-a-imputar'] != 0 %}
+                  <div class="fila-imputacion">
+                    <div class="columna-izquierda">{{ persona.nombre }}</div>
+                    <div class="columna-derecha">
+                      {{ persona.imputacion['horas-a-imputar'] }}h / {{ persona.imputacion['coste-horas-a-imputar'] }} €
+                    </div>
                   </div>
-                </div>
+                {% endif %}
               {% endfor %}
             {% endfor %}
         </div>
-                <!-- Gastos -->
-                <div class="page-break"></div>
-                <div class="invoice-body">
-                    <h2>Costes por Trabajador</h2>
-                    {% for trabajador in trabajadores %}
-                    <div class="trabajador">
-                        <h4 class="recuadro-titulo">{{ trabajador.nombre }}</h4>
-                        <br>
-                        <i class="small-text">{{ trabajador.desc }}</i>
-                        <p class="small-text">
-                            <strong>Participación:</strong> {{ trabajador["participacion"] }},
-                            <strong>Días Laborables al Mes:</strong> {{ trabajador["dias-laborables_mes"] }},
-                            <strong>Días de Vacaciones:</strong> {{ trabajador["dias-vacaciones"] }},
-                            <strong>Días Imputables:</strong> {{ trabajador["dias-imputables"] }},
-                            <strong>Total de Horas:</strong> {{ trabajador["total-horas"] }},
-                            <strong>CSR:</strong> {{ trabajador["coste-hora-mensual"] }} €
-                        </p>
-                        <p><strong>Coste del Trabajador:</strong> {{ trabajador["coste-trabajador"] }} €</p>
-                    </div>
-                    {% endfor %}
-                </div>
-    
-                <div class="invoice-footer">
-                    <h3>Total Coste:</h3>
-                    <div class="total-cost">
-                        <p>{{ total_coste }} €</p>
-                    </div>
-                </div>
+
+        <!-- Gastos -->
+        <div class="page-break"></div>
+        <div class="invoice-body">
+            <h2>Costes por Trabajador</h2>
+            {% for trabajador in trabajadores %}
+            <div class="trabajador">
+                <h4 class="recuadro-titulo">{{ trabajador.nombre }}</h4>
+                <br>
+                <i class="small-text">{{ trabajador.desc }}</i>
+                <p class="small-text">
+                    <strong>Participación:</strong> {{ trabajador["participacion"] }},
+                    <strong>Días Laborables al Mes:</strong> {{ trabajador["dias-laborables_mes"] }},
+                    <strong>Días de Vacaciones:</strong> {{ trabajador["dias-vacaciones"] }},
+                    <strong>Días Imputables:</strong> {{ trabajador["dias-imputables"] }},
+                    <strong>Total de Horas:</strong> {{ trabajador["total-horas"] }},
+                    <strong>CSR:</strong> {{ trabajador["coste-hora-mensual"] }} €
+                </p>
+                <p><strong>Coste del Trabajador:</strong> {{ trabajador["coste-trabajador"] }} €</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="invoice-footer">
+            <h3>Total Coste:</h3>
+            <div class="total-cost">
+                <p>{{ total_coste }} €</p>
+            </div>
+        </div>
     </div>
 </body>
 </html>
