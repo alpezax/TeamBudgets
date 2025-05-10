@@ -132,10 +132,18 @@ def procesar_proyecto(proyecto_id: str, proyecto_model, coste_equipo, control_ho
         "horas": horas,
         "margen-contrato": margen_contrato,
         "workpool": proyecto.get("workpool", []),
-        "tarifa-hora": tarifa_hora,
-        "imputaciones": imputaciones
+        "tarifa-hora": tarifa_hora
     }
 
+    total_horas_imputadas = sum(
+        imp["imputacion"]["horas-a-imputar"] for imp in imputaciones
+    )
+    print(margen_contrato.get('margen'))
+    proyecto_info['horas-restantes'] = horas.get('venta') * (1 - float(margen_contrato.get('margen'))) - horas.get('consumidas')
+    proyecto_info["total-horas-imputadas"] = total_horas_imputadas
+    proyecto_info["horas-tras-imputacion"] = proyecto_info['horas-restantes'] - total_horas_imputadas
+    proyecto_info["imputaciones"] = imputaciones
+    
     return proyecto_info, None, total_balance
 
 # Asigna trabajadores no asignados a proyectos de forma forzada
