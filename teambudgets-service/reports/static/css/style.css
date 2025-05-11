@@ -233,3 +233,12 @@ Tabla
 .page-break {
   page-break-before: always;
 }
+
+.tabla-proyectos {
+  font-size: 10px;
+}
+
+.tabla-proyectos th,
+.tabla-proyectos td {
+  font-size: inherit;
+}

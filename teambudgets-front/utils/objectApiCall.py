@@ -216,6 +216,14 @@ def get_documentos_de_coleccion(coleccion):
     """
     return requests.get(f"{API_URL}/document/{coleccion}").json()
 
+def replace_entire_document(collection_name, new_data):
+    """
+    Reemplaza completamente un documento existente por uno nuevo.
+    new_data debe incluir un campo "_id" válido (en string).
+    """
+    data = {"new_data": new_data}
+    return requests.put(f"{API_URL}/document/{collection_name}/replace", json=data).json()
+
 #************************************************************************
 # Funciones de la API para Equipos
 #************************************************************************

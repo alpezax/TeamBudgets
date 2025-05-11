@@ -9,6 +9,12 @@ from model.document import Document
 
 router = APIRouter()
 
+class UpdateTotalRequest(BaseModel):
+    new_data: Dict[str, Any]
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
 class SetFieldRequest(BaseModel):
     path: str
     value: Any
@@ -113,3 +119,22 @@ def get_all_documents_route(collection_name: str):
         return documents 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener documentos: {str(e)}")
+    
+@router.put("/document/{collection_name}/replace")
+def replace_entire_document(collection_name: str, body: UpdateTotalRequest):
+    new_data = body.new_data
+
+    if "_id" not in new_data:
+        raise HTTPException(status_code=400, detail="El documento debe contener un campo '_id'.")
+
+    try:
+        new_data["_id"] = ObjectId(new_data["_id"])  # Convertir _id de string a ObjectId
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="ID no válido")
+
+    try:
+        document = Document(collection_name, {"_id": new_data["_id"]})
+        document.update_total(new_data)
+        return {"message": "Documento reemplazado correctamente."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al reemplazar el documento: {str(e)}")

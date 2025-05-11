@@ -142,6 +142,7 @@ def procesar_proyecto(proyecto_id: str, proyecto_model, coste_equipo, control_ho
     proyecto_info['horas-restantes'] = horas.get('venta') * (1 - float(margen_contrato.get('margen'))) - horas.get('consumidas')
     proyecto_info["total-horas-imputadas"] = total_horas_imputadas
     proyecto_info["horas-tras-imputacion"] = proyecto_info['horas-restantes'] - total_horas_imputadas
+    proyecto_info["porcentaje-consumido"] = proyecto_info["horas-tras-imputacion"] / (horas.get('venta') * (1 - float(margen_contrato.get('margen')))) * 100
     proyecto_info["imputaciones"] = imputaciones
     
     return proyecto_info, None, total_balance

@@ -10,7 +10,7 @@
     <div class="invoice">
         <div class="invoice-header">
             <div class="invoice-company">
-                <h1>Estado presupuestario</h1>
+                <h1>Borrador presupuesto mensual</h1>
             </div>
             <div class="invoice-date">
                 <strong>Mes:</strong> {{ mes }}<br>
@@ -37,6 +37,60 @@
                   </div>
                 {% endif %}
               {% endfor %}
+            {% endfor %}
+        </div>
+
+        <!-- Estado de los proyectos -->
+        <div class="page-break"></div>
+        <div class="invoice-body">
+            <h2>Estado de los proyectos</h2>
+
+            {% for proyecto in imputaciones %}
+            
+            <div class="proyecto">
+                <h4 class="recuadro-titulo">{{ proyecto.nombre }}</h4>
+                <p class="small-text"><strong>ID Externo:</strong> {{ proyecto.idext }}</p>
+                <p class="small-text"><strong>Descripción:</strong> {{ proyecto.descripcion or "Sin descripción" }}</p>
+
+                <table class="tabla-proyectos">
+                    <thead>
+                        <tr>
+                            <th>Horas Vendidas</th>
+                            <th>Horas Consumidas</th>
+                            <th>Margen de Contrato</th>
+                            <th>Horas sin margen</th>
+                            <th>Tarifa por Hora (€)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ proyecto.horas.venta }}</td>
+                            <td>{{ proyecto.horas.consumidas }}</td>
+                            <td>{{ proyecto["margen-contrato"].margen * 100 }} %</td>
+                            <td>{{ (1 - proyecto["margen-contrato"].margen ) * proyecto.horas.venta }}</td>
+                            <td>{{ proyecto["tarifa-hora"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br></br>
+                <table class="tabla-proyectos">
+                    <thead>
+                        <tr>
+                            <th>Total Horas Imputadas</th>
+                            <th>Porcentaje disponible</th>
+                            <th>Horas Restantes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ proyecto["total-horas-imputadas"] }}</td>
+                            <td>{{ proyecto["porcentaje-consumido"] | round(2) }} % </td>
+                            <td>{{ proyecto["horas-tras-imputacion"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
+            </div>
             {% endfor %}
         </div>
 

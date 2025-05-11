@@ -52,6 +52,18 @@ class Document:
         for path, value in updates.items():
             self.set(path, value)
 
+    def update_total(self, new_data: Dict[str, Any]):
+        """
+        Reemplaza todo el contenido del documento con nuevos datos.
+        Utiliza el _id para encontrar el documento a actualizar.
+        """
+        if '_id' not in new_data:
+            raise ValueError("El documento debe contener el campo '_id' para ser actualizado.")
+        
+        # Reemplaza el documento completo
+        self.collection.replace_one({'_id': ObjectId(new_data['_id'])}, new_data)
+        self.document = new_data  # Actualiza el documento en la memoria
+    
     def delete_field(self, path: str):
         """
         Elimina un campo anidado del documento con notación punto.
@@ -85,7 +97,6 @@ class Document:
         result = objectid_to_str(self.collection.insert_one(data))
         return result.inserted_id
 
-        
     def get_all_documents(self, collection_name: str) -> list[dict]:
         collection = getDb()[collection_name]
         cursor = collection.find()
