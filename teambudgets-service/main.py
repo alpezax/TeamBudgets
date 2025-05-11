@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+import os
+
 from controller import constantesController
 from controller import categoriaTrabajadorController
 from controller import oficinaController
@@ -13,6 +16,7 @@ from controller import autoBalanceServiceController
 from controller import autoBalanceReportController
 from controller import validateBudgetController
 from controller import aplicaBudgetController
+from controller import export_balance_serviceController
 
 app = FastAPI()
 app.include_router(constantesController.router)
@@ -29,4 +33,8 @@ app.include_router(costesEquipoServiceController.router)
 app.include_router(autoBalanceReportController.router)
 app.include_router(validateBudgetController.router)
 app.include_router(aplicaBudgetController.router)
+app.include_router(export_balance_serviceController.router)
 
+
+os.makedirs("downloads", exist_ok=True)
+app.mount("/downloads", StaticFiles(directory="downloads"), name="downloads")

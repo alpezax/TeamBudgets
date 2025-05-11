@@ -1,5 +1,7 @@
 fastapi==0.115.12
+Jinja2==3.1.2
 pydantic==2.11.4
 pymongo==4.7.2
 python-dotenv==1.1.0
 python_dateutil==2.8.2
+weasyprint==65.1

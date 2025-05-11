@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Informe de Balance</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="invoice">
+        <div class="invoice-header">
+            <h1>{{ nombre_balance }}</h1>
+            <p><strong>Mes:</strong> {{ mes }} {{ año }}</p>
+            <p><strong>Equipo:</strong> {{ equipo_ref }}</p>
+        </div>
+
+        <div class="page-break"></div>
+        <h2>Proyectos e Imputaciones</h2>
+
+        {% for proyecto in imputaciones %}
+        <div class="proyecto">
+            <h3>{{ proyecto.ingreso_desc }}</h3>
+            <!--<p><strong>ID Proyecto:</strong> {{ proyecto.proyecto_id }}</p>-->
+            <!--<p><strong>Tipo de ingreso:</strong> {{ proyecto.tipo_ingreso }}</p>-->
+            <p><strong>Horas:</strong> Se consumirán {{ proyecto.horas | round(2) }} h del proyecto</p>
+            <p><strong>Consumo económico:</strong> Se consumirán {{ proyecto.ingreso_val }} € del ingreso</p>
+            <p><strong>EXT del proyecto:</strong> {{ proyecto.idext }} </p>
+                
+            <h4>Gastos por trabajador:</h4>
+            <table class="tabla-proyectos">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Horas</th>
+                        <th>Descripción</th>
+                        <th>Coste (€)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gasto in proyecto.gastos %}
+                    <tr>
+                        <td>{{ gasto.nombre }}</td>
+                        <td>{{ gasto.horas }}</td>
+                        <td>{{ gasto.desc }}</td>
+                        <td>{{ gasto.valor }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br><br>
+        {% endfor %}
+        <div class="invoice-footer">
+            <h3>Total Balance:</h3>
+            <p>{{ total_balance | round(2) }} €</p>
+        </div>
+
+        <div class="page-break"></div>
+        <h2>Imputaciones por colaborador</h2>
+        
+        {% for trabajador, imputacion in imputacionespersona.items() %}
+            <div class="imputaciones-trabajador">
+                <h3>{{ trabajador }}</h3>
+                <ul>
+                    {% for ext, horas in imputacion.items() %}
+                        <li>EXT: {{ ext }} - Horas: {{ horas }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+    </div>
+</body>
+</html>

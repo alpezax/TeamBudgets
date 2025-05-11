@@ -39,3 +39,24 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json'
 ```
+
+# Reporte de un presupuesto
+
+```bash
+curl -X GET "http://localhost:8000/balance/exportar-pdf?presupuesto_id=682057c9be052e66d24dc6d8&nombre_reporte=balance_mayo&carpeta_salida=informes" -H "accept: application/json"
+```
+
+
+# Imputaciones
+
+```bash
+curl -X 'GET' \
+  'http://localhost:8000/balance/imputaciones?presupuesto_id=ID_DEL_PRESUPUESTO' \
+  -H 'accept: application/json'
+```
+
+```bash
+curl -X 'GET' \
+  'http://localhost:8000/balance/imputaciones?presupuesto_id=6820bf6d7e038d8e275cd225' \
+  -H 'accept: application/json'
+```

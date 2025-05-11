@@ -6,7 +6,8 @@ from utils.objectApiCall import (
     delete_document,
     validar_y_actualizar_presupuesto,
     aplicar_presupuesto,
-    rollback_presupuesto 
+    rollback_presupuesto,
+    exportar_balance_pdf
 )
 
 # Configurar la barra lateral
@@ -15,7 +16,13 @@ sidebar_config()
 # Título de la página
 st.title("Lista de presupuestos")
 
-# Función auxiliar para definir el emoji del estado
+
+
+
+#************************************************************************
+# Funciones auxiliares de visualización
+#************************************************************************
+
 def estado_emoji(estado):
     emoji_map = {
         "DRAFT": "⚪",
@@ -41,10 +48,12 @@ def estado_tag(estado):
     return f"<span style='background-color:{color_map.get(estado, '#DDD')}; \
                 color:white; padding:4px 8px; border-radius:12px; font-size:0.8em;'>{emoji_map.get(estado, '⚪')} {estado}</span>"
 
-# Obtener presupuestos
+#************************************************************************
+# Mostrar lista de presupuestos
+#************************************************************************
+
 presupuestos = get_documentos_de_coleccion("presupuestos")
 
-# Mostrar cada presupuesto
 for presupuesto in presupuestos:
     año = presupuesto.get("año")
     mes = presupuesto.get("mes")
@@ -52,15 +61,11 @@ for presupuesto in presupuestos:
     estado = presupuesto.get("estado")
     presupuesto_id = presupuesto["_id"]
 
-    # Crear el título con el estado y emoji dentro del expander
     expander_title = f"{año} - {mes} | {nombre}        {estado_emoji(estado)} {estado}"
 
-    # Crear el expander
     with st.expander(expander_title, expanded=False):
-        # Mostrar el título dentro del expander en letras grandes
         st.markdown(f"### {año} - {mes} | {nombre} {estado_tag(estado)}", unsafe_allow_html=True)
 
-        # Usar columnas para colocar acciones y estado
         col1, col2 = st.columns([4, 1])
 
         with col1:
@@ -102,5 +107,25 @@ for presupuesto in presupuestos:
                         st.success("Rollback aplicado correctamente.")
                         st.rerun()
 
-        # Mostrar contenido del presupuesto para debugging o visualización
+        # Mostrar contenido del presupuesto
         st.json(presupuesto)
+
+        if st.button("📄 Generar y Descargar PDF", key=f"generar_pdf_{presupuesto_id}"):
+            exportar_balance_pdf(str(presupuesto_id), nombre)
+
+            pdf_url = f"http://localhost:8000/downloads/{nombre}.pdf"
+            try:
+                response = requests.get(pdf_url)
+                if response.status_code == 200:
+                    st.success("Informe generado correctamente.")
+                    st.download_button(
+                        label="📥 Descargar Informe PDF",
+                        data=response.content,
+                        file_name=f"{nombre}.pdf",
+                        mime="application/pdf",
+                        key=f"descargar_pdf_{presupuesto_id}"
+                    )
+                else:
+                    st.error("No se pudo encontrar el archivo PDF generado.")
+            except Exception as e:
+                st.error(f"Error al descargar el PDF: {str(e)}")

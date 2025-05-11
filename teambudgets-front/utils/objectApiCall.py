@@ -350,3 +350,22 @@ def rollback_presupuesto(presupuesto_id):
         return response.json()
     except:
         return {"error": response.text}
+    
+#************************************************************************
+# Función de la API para generar informe de balance
+#************************************************************************
+
+def exportar_balance_pdf(presupuesto_id, nombre_reporte=None, carpeta_salida="downloads"):
+    params = {
+        "presupuesto_id": presupuesto_id,
+        "carpeta_salida": carpeta_salida
+    }
+    if nombre_reporte:
+        params["nombre_reporte"] = nombre_reporte
+
+    response = requests.get(f"{API_URL}/balance/exportar-pdf", params=params)
+
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}

@@ -183,7 +183,8 @@ def render_item(item, idx, proyectos, trabajadores, mes, año, meses):
 
             item["proyecto_id"] = proyecto["_id"]
             item["horas"] = horas_input
-
+            item["idext"] = proyecto["idext"]
+            
         item["ingreso_desc"] = ingreso_desc
         item["ingreso_val"] = ingreso_val
 
