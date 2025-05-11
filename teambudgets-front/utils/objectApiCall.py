@@ -341,3 +341,12 @@ def aplicar_presupuesto(presupuesto_id):
         return response.json()
     except:
         return {"error": response.text}
+
+def rollback_presupuesto(presupuesto_id):
+    """Lanza el rollback del presupuesto con ID dado."""
+    url = f"{API_URL}/presupuestos/{presupuesto_id}/rollback"
+    response = requests.post(url)
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}

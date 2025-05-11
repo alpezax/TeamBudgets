@@ -102,3 +102,17 @@ class Document:
         cursor = collection.find()
         documents = list(cursor)
         return [objectid_to_str(doc) for doc in documents]
+    
+    def set_or_create_field(self, path: str, value: Any):
+        """
+        Establece el valor de un campo. Si el campo existe, lo actualiza; si no, lo crea.
+        El campo se especifica usando notación punto para estructuras anidadas.
+        """
+        self.collection.update_one(self.document_filter, {"$set": {path: value}})
+        
+        # También actualiza la copia en memoria
+        keys = path.split(".")
+        d = self.document
+        for key in keys[:-1]:
+            d = d.setdefault(key, {})
+        d[keys[-1]] = value

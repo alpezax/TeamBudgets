@@ -89,7 +89,7 @@ class Proyecto:
         result = self.collection.delete_one({"_id": ObjectId(id_str)})
         return result.deleted_count > 0
 
-    def aplica_transaccion(self, id_proyecto: str, horas: float, presupuesto_id: str, presupuesto_nombre: str, mes_str: str):
+    def aplica_transaccion(self, id_proyecto: str, horas: float, presupuesto_id: str, presupuesto_nombre: str, mes_str: str, txid: str):
         try:
             proyecto = self.collection.find_one({"_id": ObjectId(id_proyecto)})
             if not proyecto:
@@ -102,7 +102,7 @@ class Proyecto:
             # Nueva transacción
             nueva_tx = {
                 "mes_str": mes_str,
-                "txid": str(uuid.uuid4()),
+                "txid": txid, #str(uuid.uuid4()),
                 "timestamp": datetime.datetime.utcnow().isoformat(),
                 "horas": horas,
                 "presupuesto-id": presupuesto_id,
@@ -121,4 +121,31 @@ class Proyecto:
             return result.modified_count > 0
         except Exception as e:
             print(f"Error al aplicar transacción: {e}")
+            return False
+
+    def rollback_transaccion(self, id_proyecto: str, txid: str):
+        try:
+            proyecto = self.collection.find_one({"_id": ObjectId(id_proyecto)})
+            if not proyecto or "tx" not in proyecto:
+                return False
+
+            txs = proyecto["tx"]
+            tx_to_rollback = next((tx for tx in txs if tx["txid"] == txid), None)
+
+            if not tx_to_rollback:
+                return False  # No se encontró la transacción
+
+            horas_a_restar = tx_to_rollback["horas"]
+            nuevas_txs = [tx for tx in txs if tx["txid"] != txid]
+
+            horas_actuales = proyecto.get("horas", {"venta": 0, "consumidas": 0})
+            horas_actuales["consumidas"] = max(0, horas_actuales.get("consumidas", 0) - horas_a_restar)
+
+            result = self.collection.update_one(
+                {"_id": ObjectId(id_proyecto)},
+                {"$set": {"horas": horas_actuales, "tx": nuevas_txs}}
+            )
+            return result.modified_count > 0
+        except Exception as e:
+            print(f"Error al hacer rollback de la transacción: {e}")
             return False

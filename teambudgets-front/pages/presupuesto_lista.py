@@ -1,8 +1,13 @@
 import streamlit as st
 import requests
 from components.sidebar import sidebar_config 
-from utils.objectApiCall import get_documentos_de_coleccion, delete_document,validar_y_actualizar_presupuesto,aplicar_presupuesto
-
+from utils.objectApiCall import (
+    get_documentos_de_coleccion, 
+    delete_document,
+    validar_y_actualizar_presupuesto,
+    aplicar_presupuesto,
+    rollback_presupuesto 
+)
 
 # Configurar la barra lateral
 sidebar_config()
@@ -79,7 +84,6 @@ for presupuesto in presupuestos:
                     else:
                         st.success("Presupuesto aplicado y marcado como EXECUTED.")
                         st.rerun()
-                        
 
             if estado != "EXECUTED":
                 if st.button("❌ Eliminar", key=f"eliminar_{presupuesto_id}"):
@@ -90,7 +94,13 @@ for presupuesto in presupuestos:
                     else:
                         st.error("Hubo un error al eliminar el presupuesto.")
             else:
-                st.markdown("🔒 No se puede eliminar un presupuesto ejecutado.")
+                if st.button("↩️ Rollback", key=f"rollback_{presupuesto_id}"):
+                    resultado = rollback_presupuesto(str(presupuesto_id))
+                    if "error" in resultado:
+                        st.error(f"Error al hacer rollback: {resultado['error']}")
+                    else:
+                        st.success("Rollback aplicado correctamente.")
+                        st.rerun()
 
         # Mostrar contenido del presupuesto para debugging o visualización
         st.json(presupuesto)

@@ -221,8 +221,7 @@ def render_page():
     color_total = "green" if total_balance >= 0 else "red"
     st.markdown(f"<div style='color:{color_total}; font-size:24px; font-weight:bold;'>{total_balance:.2f} €</div>", unsafe_allow_html=True)
 
-    # Botón Guardar con disquete
-    # Botón Guardar con disquete
+   
     if st.button("💾 Guardar borrador"):
         if not nombre_balance.strip():
             st.error("⚠️ Debes asignar un nombre al balance antes de guardarlo.")
