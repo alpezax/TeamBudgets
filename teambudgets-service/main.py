@@ -11,6 +11,8 @@ from controller import equipoController
 from controller import costesEquipoServiceController
 from controller import autoBalanceServiceController
 from controller import autoBalanceReportController
+from controller import validateBudgetController
+from controller import aplicaBudgetController
 
 app = FastAPI()
 app.include_router(constantesController.router)
@@ -25,4 +27,6 @@ app.include_router(equipoController.router)
 app.include_router(autoBalanceServiceController.router)
 app.include_router(costesEquipoServiceController.router)
 app.include_router(autoBalanceReportController.router)
+app.include_router(validateBudgetController.router)
+app.include_router(aplicaBudgetController.router)
 

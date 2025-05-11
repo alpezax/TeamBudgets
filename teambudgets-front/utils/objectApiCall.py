@@ -310,3 +310,34 @@ def desvincular_proyecto_equipo(id_equipo, id_proyecto):
         return response.json()
     except:
         return {"error": response.text}
+
+#************************************************************************
+# Funciones de la API para Validación de Presupuestos
+#************************************************************************
+def validar_presupuesto(presupuesto_id):
+    """Valida un presupuesto sin hacer update en la base de datos."""
+    data = {"presupuesto_id": presupuesto_id}
+    response = requests.post(f"{API_URL}/presupuestos/validar", json=data)
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}
+
+def validar_y_actualizar_presupuesto(presupuesto_id):
+    """Valida y actualiza el estado del presupuesto en la base de datos."""
+    data = {"presupuesto_id": presupuesto_id}
+    response = requests.post(f"{API_URL}/presupuestos/validarupdate", json=data)
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}
+    
+
+def aplicar_presupuesto(presupuesto_id):
+    """Lanza la aplicación del presupuesto con ID dado."""
+    url = f"{API_URL}/presupuestos/{presupuesto_id}/aplicar"
+    response = requests.post(url)
+    try:
+        return response.json()
+    except:
+        return {"error": response.text}

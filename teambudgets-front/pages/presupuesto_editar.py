@@ -85,21 +85,43 @@ st.subheader(f"Balance Total para {nombre_balance or 'Sin nombre'} - {mes} {año
 color_total = "green" if total_balance >= 0 else "red"
 st.markdown(f"<div style='color:{color_total}; font-size:24px; font-weight:bold;'>{total_balance:.2f} €</div>", unsafe_allow_html=True)
 
-# Botón Guardar
 if st.button("💾 Guardar cambios"):
     if not nombre_balance.strip():
         st.error("⚠️ El balance debe tener un nombre.")
     else:
-        documento_actualizado = {
-            "_id": documento["_id"],  # Para indicar que es una edición
-            "nombre_balance": nombre_balance,
-            "mes": meses.index(mes) + 1,
-            "año": año,
-            "equipo": equipo_seleccionado,
-            "items": st.session_state.registro_items,
+        # Diccionario para traducir nombres de meses en español a números
+        meses_es = {
+            "Enero": 1, "Febrero": 2, "Marzo": 3, "Abril": 4,
+            "Mayo": 5, "Junio": 6, "Julio": 7, "Agosto": 8,
+            "Septiembre": 9, "Octubre": 10, "Noviembre": 11, "Diciembre": 12
         }
+        mes_num = meses_es.get(mes.capitalize())
+        mes_anyo_str = f"{año}-{mes_num:02d}"
+        mes_anyo_timestamp = datetime.strptime(mes_anyo_str + "-01", "%Y-%m-%d").isoformat()
+
+        documento_actualizado = {
+            "_id": documento["_id"],
+            "nombre_balance": nombre_balance,
+            "estado": "DRAFT",
+            "version": "1.0.0",
+            "mes": mes,  # Ej: "Mayo"
+            "año": año,
+            "equipo": {
+                "id": equipo_seleccionado["_id"],
+                "ref": equipo_seleccionado["nombre"]
+            },
+            "mes_anyo_str": mes_anyo_str,
+            "mes_anyo_timestamp": mes_anyo_timestamp,
+            "history": {},
+            "imputaciones": st.session_state.registro_items,
+            "total_balance": total_balance,
+            "timestamp": datetime.now().isoformat()
+        }
+
         response = replace_entire_document("presupuestos", documento_actualizado)
+
         if response.get("message") == "Documento reemplazado correctamente.":
             st.success("✅ Presupuesto actualizado correctamente.")
         else:
             st.error(f"❌ Error al guardar los cambios: {response.get('detail', 'Respuesta inesperada.')}")
+

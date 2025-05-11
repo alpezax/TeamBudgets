@@ -43,68 +43,63 @@ def render_gastos_update(item, idx, trabajadores, mes, año, meses):
     if "gastos" not in item:
         item["gastos"] = []
 
+    eliminar_idx = None
+
     for g_idx, gasto in enumerate(item["gastos"]):
         background_color = f"background-color: rgba({(g_idx * 50) % 255}, {(g_idx * 100) % 255}, {(g_idx * 150) % 255}, 0.1);"
         with st.container():
-            
             st.markdown(f'<div style="{background_color} padding: 10px; border-radius: 5px;">', unsafe_allow_html=True)
 
-            # Buscar el trabajador correspondiente al trabajador_id del gasto
-            trabajador_asociado = next((t for t in trabajadores if t["_id"] == gasto["trabajador_id"]), None)
-            
+            trabajador_asociado = next((t for t in trabajadores if t["_id"] == gasto.get("trabajador_id")), None)
+
+            # Mostrar el selector sin index si no hay trabajador asociado aún
             if trabajador_asociado:
-                # Preseleccionar al trabajador en el selectbox
-                trabajador_idx = st.selectbox(
-                    f"Trabajador", 
-                    options=trabajadores, 
-                    format_func=lambda t: t["nombre"],  # Mostrar el nombre en la interfaz
-                    index=trabajadores.index(trabajador_asociado),  # Preseleccionar el trabajador correspondiente
-                    key=f"trabajador_sel_{idx}_{g_idx}"
-                )
-
-                # Debug: Mostrar el trabajador seleccionado
-                #st.write(f"Trabajador seleccionado: {trabajador_idx}")
-
-                # Usar el trabajador seleccionado en el gasto
-                trabajador = trabajador_idx  # Ya seleccionamos el trabajador correctamente
-
-                # Ahora calculamos los valores correspondientes
-                horas_incurridas = st.number_input("Horas incurridas", min_value=0.0, step=0.5,
-                                                   value=gasto.get("horas", 0.0), key=f"horas_gasto_{idx}_{g_idx}")
-
-                mes_num = meses.index(mes) + 1
-                mes_str = f"{año}-{mes_num:02d}"
-
-                # Cálculo de dedicación e imputables
-                dedicacion = trabajador.get("dedicacion-mensual", {}).get(mes_str, {"laborables": 0, "vacaciones": 0})
-                dias_imputables = dedicacion["laborables"] - dedicacion["vacaciones"]
-                horas_imputables = dias_imputables * get_horas_jornada()
-
-                # Cálculo de coste
-                coste_hora = trabajador.get("coste-hora-mensual", {}).get(mes_str, 100)
-                coste_total = round(horas_incurridas * coste_hora, 2)
-                gasto_desc = f"{trabajador['nombre']} ({horas_incurridas} h x {coste_hora} €/h)"
-
-                item["gastos"][g_idx] = {
-                    "trabajador_id": trabajador["_id"],
-                    "nombre": trabajador["nombre"],
-                    "horas": horas_incurridas,
-                    "desc": gasto_desc,
-                    "valor": coste_total
-                }
-
-                st.markdown(f"**Días imputables:** {dias_imputables}")
-                st.markdown(f"**Horas imputables (estimadas):** {horas_imputables}")
-                st.markdown(f"**Coste hora:** {coste_hora} €")
-                st.markdown(f"**Coste total:** {coste_total:.2f} €")
-
-                if st.button(f"Eliminar trabajador {g_idx + 1}", key=f"remove_gasto_{idx}_{g_idx}"):
-                    del item["gastos"][g_idx]
-
+                trabajador_idx = trabajadores.index(trabajador_asociado)
             else:
-                st.error("No se encontró el trabajador asociado al gasto.")
+                trabajador_idx = None
+
+            trabajador = st.selectbox(
+                f"Trabajador",
+                options=trabajadores,
+                format_func=lambda t: t["nombre"],
+                index=trabajador_idx if trabajador_idx is not None else 0,
+                key=f"trabajador_sel_{idx}_{g_idx}"
+            )
+
+            horas_incurridas = st.number_input("Horas incurridas", min_value=0.0, step=0.5,
+                                               value=gasto.get("horas", 0.0), key=f"horas_gasto_{idx}_{g_idx}")
+
+            mes_num = meses.index(mes) + 1
+            mes_str = f"{año}-{mes_num:02d}"
+
+            dedicacion = trabajador.get("dedicacion-mensual", {}).get(mes_str, {"laborables": 0, "vacaciones": 0})
+            dias_imputables = dedicacion["laborables"] - dedicacion["vacaciones"]
+            horas_imputables = dias_imputables * get_horas_jornada()
+
+            coste_hora = trabajador.get("coste-hora-mensual", {}).get(mes_str, 100)
+            coste_total = round(horas_incurridas * coste_hora, 2)
+            gasto_desc = f"{trabajador['nombre']} ({horas_incurridas} h x {coste_hora} €/h)"
+
+            item["gastos"][g_idx] = {
+                "trabajador_id": trabajador["_id"],
+                "nombre": trabajador["nombre"],
+                "horas": horas_incurridas,
+                "desc": gasto_desc,
+                "valor": coste_total
+            }
+
+            st.markdown(f"**Días imputables:** {dias_imputables}")
+            st.markdown(f"**Horas imputables (estimadas):** {horas_imputables}")
+            st.markdown(f"**Coste hora:** {coste_hora} €")
+            st.markdown(f"**Coste total:** {coste_total:.2f} €")
+
+            if st.button(f"Eliminar trabajador {g_idx + 1}", key=f"remove_gasto_{idx}_{g_idx}"):
+                eliminar_idx = g_idx
 
             st.markdown("</div>", unsafe_allow_html=True)
+
+    if eliminar_idx is not None:
+        item["gastos"].pop(eliminar_idx)
 
     if st.button("➕ Añadir trabajador", key=f"add_gasto_{idx}"):
         item["gastos"].append({
@@ -114,6 +109,7 @@ def render_gastos_update(item, idx, trabajadores, mes, año, meses):
             "desc": "",
             "valor": 0.0
         })
+
 
 
 # --- Render: Ítem individual ---

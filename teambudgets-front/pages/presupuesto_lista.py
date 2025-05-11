@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
 from components.sidebar import sidebar_config 
-from utils.objectApiCall import get_documentos_de_coleccion, delete_document
+from utils.objectApiCall import get_documentos_de_coleccion, delete_document,validar_y_actualizar_presupuesto,aplicar_presupuesto
+
 
 # Configurar la barra lateral
 sidebar_config()
@@ -13,7 +14,7 @@ st.title("Lista de presupuestos")
 def estado_emoji(estado):
     emoji_map = {
         "DRAFT": "⚪",
-        "FAIL": "🔴",
+        "INVALID": "🔴",
         "VALID": "🟢",
         "EXECUTED": "🔵",
     }
@@ -22,13 +23,13 @@ def estado_emoji(estado):
 def estado_tag(estado):
     color_map = {
         "DRAFT": "#B0B0B0",
-        "FAIL": "#FF4B4B",
+        "INVALID": "#FF4B4B",
         "VALID": "#4CAF50",
         "EXECUTED": "#2196F3",
     }
     emoji_map = {
         "DRAFT": "⚪",
-        "FAIL": "🔴",
+        "INVALID": "🔴",
         "VALID": "🟢",
         "EXECUTED": "🔵",
     }
@@ -61,19 +62,35 @@ for presupuesto in presupuestos:
             st.markdown(estado_tag(estado), unsafe_allow_html=True)
 
         with col2:
-            if estado == "DRAFT":
-                st.button("✅ Validar", key=f"validar_{presupuesto_id}")
+            if estado == "DRAFT" or estado == "INVALID":
+                if st.button("✅ Validar", key=f"validar_{presupuesto_id}"):
+                    resultado = validar_y_actualizar_presupuesto(str(presupuesto_id))
+                    if "error" in resultado:
+                        st.error(f"Error al validar: {resultado['error']}")
+                    else:
+                        st.success("Presupuesto validado correctamente.")
+                        st.rerun()
+
             elif estado == "VALID":
-                st.button("🚀 Ejecutar", key=f"ejecutar_{presupuesto_id}")
+                if st.button("🚀 Ejecutar", key=f"ejecutar_{presupuesto_id}"):
+                    resultado = aplicar_presupuesto(str(presupuesto_id))
+                    if "error" in resultado:
+                        st.error(f"Error al ejecutar: {resultado['error']}")
+                    else:
+                        st.success("Presupuesto aplicado y marcado como EXECUTED.")
+                        st.rerun()
+                        
 
             if estado != "EXECUTED":
                 if st.button("❌ Eliminar", key=f"eliminar_{presupuesto_id}"):
                     response = delete_document("presupuestos", id=presupuesto_id)
                     if response.get("success"):
                         st.success("Presupuesto eliminado con éxito.")
+                        st.rerun()
                     else:
                         st.error("Hubo un error al eliminar el presupuesto.")
             else:
                 st.markdown("🔒 No se puede eliminar un presupuesto ejecutado.")
 
+        # Mostrar contenido del presupuesto para debugging o visualización
         st.json(presupuesto)

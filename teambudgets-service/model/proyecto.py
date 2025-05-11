@@ -1,6 +1,7 @@
 from db.mongo_connection import getDb
 from bson import ObjectId
-
+import uuid
+import datetime
 
 class Proyecto:
     def __init__(self):
@@ -87,3 +88,37 @@ class Proyecto:
     def delete(self, id_str: str):
         result = self.collection.delete_one({"_id": ObjectId(id_str)})
         return result.deleted_count > 0
+
+    def aplica_transaccion(self, id_proyecto: str, horas: float, presupuesto_id: str, presupuesto_nombre: str, mes_str: str):
+        try:
+            proyecto = self.collection.find_one({"_id": ObjectId(id_proyecto)})
+            if not proyecto:
+                return False
+
+            # Sumar horas a las consumidas
+            horas_actuales = proyecto.get("horas", {"venta": 0, "consumidas": 0})
+            horas_actuales["consumidas"] = horas_actuales.get("consumidas", 0) + horas
+
+            # Nueva transacción
+            nueva_tx = {
+                "mes_str": mes_str,
+                "txid": str(uuid.uuid4()),
+                "timestamp": datetime.datetime.utcnow().isoformat(),
+                "horas": horas,
+                "presupuesto-id": presupuesto_id,
+                "presupuesto-name": presupuesto_nombre
+            }
+
+            # Si no existe 'tx', lo inicializamos como lista vacía
+            txs = proyecto.get("tx", [])
+            txs.append(nueva_tx)
+
+            # Actualizamos el documento
+            result = self.collection.update_one(
+                {"_id": ObjectId(id_proyecto)},
+                {"$set": {"horas": horas_actuales, "tx": txs}}
+            )
+            return result.modified_count > 0
+        except Exception as e:
+            print(f"Error al aplicar transacción: {e}")
+            return False
