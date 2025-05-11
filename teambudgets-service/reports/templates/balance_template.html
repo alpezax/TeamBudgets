@@ -54,6 +54,80 @@
             <p>{{ total_balance | round(2) }} €</p>
         </div>
 
+<!-- ESTADO PROYECTOS -->
+        <div class="page-break"></div>
+        <h2>Estado de los Proyectos</h2>
+
+        {% for proyecto in estadoproyectos %}
+            <div class="estado-proyecto">
+                <h3>{{ proyecto.nombre }}</h3>
+                
+                <table class="tabla-proyectos">
+                    <thead>
+                        <tr>
+                            <th>EXT</th>
+                            <th>Margen (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ proyecto.idext }}</td>
+                            <td>{{ (proyecto['margen-contrato'].margen * 100) | round(2) }} %</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="color: #666; font-style: italic;">
+                    El ingreso del proyecto es de {{ proyecto.horas.venta }} horas. 
+                    Aplicando el margen del {{ proyecto['margen-contrato'].margen }} 
+                    ({{ proyecto.horas.venta }} × (1 - {{ proyecto['margen-contrato'].margen }})), 
+                    esto son {{ (proyecto.horas.venta * (1 - proyecto['margen-contrato'].margen)) | round(2) }} horas. 
+                    El valor económico de estas horas supone un ingreso de 
+                    {{ (proyecto.horas.venta * (1 - proyecto['margen-contrato'].margen) * proyecto['tarifa-hora']) | round(2) }} €.
+                </p>
+                <!-- Tabla contable-->
+                <table class="tabla-contable">
+                    <thead>
+                      <tr>
+                        <th>Horas</th>
+                        <th>Fecha consumo</th>
+                        <th>Horas consumidas</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for entry in proyecto['calculo-horas'] %}
+                        {% if loop.first %}
+                        <tr>
+                          <td>{{ entry.input_horas | round(2) }}</td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                          <td>{{ entry.input_horas | round(2) }}</td>
+                          <td>{{ entry.mes_str }}</td>
+                          <td>-{{ entry.horas | round(2) }} </td>
+                        </tr>
+                        {% if loop.last %}
+                        <tr>
+                          <td colspan="2" style="text-align: right;"><strong>Restante</strong></td>
+                          <td>
+                            <strong style="color: {% if entry.output_horas < 0 %}red{% else %}inherit{% endif %};">
+                              {{ entry.output_horas | round(2) }}
+                            </strong>
+                          </td>
+                        </tr>
+                        {% endif %}
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                 <!-- fin tabla contable-->
+            </div>
+            <br><br>
+        {% endfor %}
+
+
+<!-- Imputaciones -->
         <div class="page-break"></div>
         <h2>Imputaciones por colaborador</h2>
         

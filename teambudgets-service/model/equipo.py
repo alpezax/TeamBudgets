@@ -126,3 +126,10 @@ class Equipo:
             {"$pull": {"proyectos": ObjectId(proyecto_id)}}
         )
         return result.modified_count > 0
+
+    def get_proyectos_by_id(self, id_str: str):
+        try:
+            doc = self.collection.find_one({"_id": ObjectId(id_str)})
+            return self._to_dict(doc)['proyectos']
+        except Exception:
+            return None

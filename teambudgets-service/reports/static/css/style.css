@@ -13,21 +13,20 @@
   src: url(sourcesanspro-bold.otf);
 }
 
-/**
 @page {
   font-family: Pacifico;
   margin: 3cm;
   @bottom-left {
     color: #1e90e4;
-    content: '♥ Thank you!';
+    content: '🧾 Presupuestos';
   }
   @bottom-right {
     color: #a9a;
-    content: 'contact@courtbouillon.org | courtbouillon.org';
+    content: 'Informe presupuestario mensual';
     font-size: 9pt;
   }
 }
-**/
+
 
 html {
   color: #14213d;
@@ -241,4 +240,36 @@ Tabla
 .tabla-proyectos th,
 .tabla-proyectos td {
   font-size: inherit;
+}
+
+/*Tabla contable*/
+.tabla-contable {
+  width: 75%;
+  margin: 30px auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 8pt;
+  border-collapse: collapse;
+}
+
+.tabla-contable th,
+.tabla-contable td {
+  padding: 6px 10px;
+  text-align: center;
+  border: none;
+}
+
+.tabla-contable th {
+  background-color: #f5f5f5;
+  color: #1e90e4;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.tabla-contable td:first-of-type {
+  text-align: left;
+}
+
+.tabla-contable td:last-of-type {
+  font-weight: bold;
+  color: #1e90e4;
 }

@@ -14,6 +14,7 @@ def generar_pdf_balance(data: dict, output_path: str):
         equipo_ref=data['equipo']['ref'],
         imputaciones=data['imputaciones'],
         imputacionespersona=data['imputaciones-persona'],
+        estadoproyectos=data['estado-proyectos'],
         total_balance=data['total_balance']
     )
 
