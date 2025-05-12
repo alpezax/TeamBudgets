@@ -5,7 +5,7 @@ Servidor de objetos presupuestarios
 ## Deploy
 
 ```bash
-cd docker
+cd docker/hub
 docker compose up -d
 ```
 
