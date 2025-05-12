@@ -20,7 +20,11 @@ pipreqs . --force
 cd ..
 
 echo -e "${GREEN}Construyendo imágenes Docker...${NC}"
-docker build -t teambudgets-front:latest ./teambudgets-front
-docker build -t teambudgets-service:latest ./teambudgets-service
+
+docker build -t alpezax/teambudgets-front:latest ./teambudgets-front
+docker build -t alpezax/teambudgets-back:latest ./teambudgets-service
+
+docker push alpezax/teambudgets-front:latest
+docker push alpezax/teambudgets-back:latest
 
 echo -e "${GREEN}¡Build completado con éxito!${NC}"

@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+
+  mongo:
+    image: mongo:6.0
+    container_name: teambudgets-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - teambudgets-net
+
+  teambudgets-front:
+    image: alpezax/teambudgets-front:latest
+    ports:
+      - "8502:8501"
+    environment:
+      API_URL: http://teambudgets-service:8000
+    depends_on:
+      - teambudgets-service
+    networks:
+      - teambudgets-net
+
+  teambudgets-service:
+    image: alpezax/teambudgets-back:latest
+    ports:
+      - "8002:8000"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/
+      DB_NAME: teambudgets
+      DB_NAME_PRE: teambudgets-pre
+      DB_NAME_TST1: teambudgets-tst-1
+      DB_NAME_TST2: teambudgets-tst-2
+      DB_NAME_TST3: teambudgets-tst-3
+    depends_on:
+      - mongo
+    networks:
+      - teambudgets-net
+
+networks:
+  teambudgets-net:
+    driver: bridge
+
+volumes:
+  mongo_data:

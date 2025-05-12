@@ -149,3 +149,4 @@ class Proyecto:
         except Exception as e:
             print(f"Error al hacer rollback de la transacción: {e}")
             return False
+
