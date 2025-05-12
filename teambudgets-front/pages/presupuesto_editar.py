@@ -4,12 +4,16 @@ from components.sidebar import sidebar_config
 from utils.objectApiCall import *
 from utils.presupuestosLib import *
 import copy
+from components.auth import authenticate
 
 
 # Configuración inicial
 st.set_page_config(page_title="Editar Presupuesto", layout="wide")
+# Autenticación
+if not authenticate():
+    st.stop()
+    
 sidebar_config()
-
 st.title("📝 Editar Presupuesto Existente")
 
 # --- Recuperar documentos existentes ---

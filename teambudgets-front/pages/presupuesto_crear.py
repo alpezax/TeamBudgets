@@ -2,11 +2,15 @@ import streamlit as st
 from datetime import datetime
 from components.sidebar import sidebar_config
 from utils.objectApiCall import *
+from components.auth import authenticate
+
 # Configuración inicial
 st.set_page_config(page_title="Balance Financiero", layout="wide")
+# Autenticación
+if not authenticate():
+    st.stop()
+    
 sidebar_config()
-
-
 # --- Render: Cabecera y selección ---
 def render_encabezado():
     st.title("Balance Financiero Mensual")

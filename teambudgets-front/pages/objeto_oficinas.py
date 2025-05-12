@@ -1,10 +1,14 @@
 import streamlit as st
 from components.sidebar import sidebar_config 
 from utils.objectApiCall import *
+from components.auth import authenticate
 
 st.title("Gestión de Oficinas")
+# Autenticación
+if not authenticate():
+    st.stop()
+    
 sidebar_config()
-
 # Mostrar todas las oficinas
 st.header("📋 Oficinas registradas")
 oficinas = get_oficinas()

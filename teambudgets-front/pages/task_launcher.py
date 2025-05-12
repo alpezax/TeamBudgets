@@ -1,10 +1,15 @@
 import streamlit as st
 from components.sidebar import sidebar_config
 from utils.taskApiCall import *
+from components.auth import authenticate
 
 st.title("Gestión de Tareas")
-sidebar_config()
+# Autenticación
+if not authenticate():
+    st.stop()
 
+
+sidebar_config()
 tasks = get_tasks()
 
 if not tasks:

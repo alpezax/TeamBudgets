@@ -9,16 +9,17 @@ from utils.objectApiCall import (
     rollback_presupuesto,
     exportar_balance_pdf
 )
+from components.auth import authenticate
 
-# Configurar la barra lateral
-sidebar_config()
 
 # Título de la página
 st.title("Lista de presupuestos")
+# Autenticación
+if not authenticate():
+    st.stop()
 
-
-
-
+# Configurar la barra lateral
+sidebar_config()
 #************************************************************************
 # Funciones auxiliares de visualización
 #************************************************************************

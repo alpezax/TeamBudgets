@@ -28,3 +28,5 @@ docker push alpezax/teambudgets-front:latest
 docker push alpezax/teambudgets-back:latest
 
 echo -e "${GREEN}¡Build completado con éxito!${NC}"
+
+git add -A; git commit -m "Build images"; git push

@@ -1,11 +1,15 @@
 import streamlit as st
 from components.sidebar import sidebar_config 
 from utils.objectApiCall import *
+from components.auth import authenticate
 
 # Título de la aplicación
 st.title("Gestión de Proyectos")
+# Autenticación
+if not authenticate():
+    st.stop()
+    
 sidebar_config()
-
 # Mostrar todos los proyectos
 st.header("📋 Proyectos registrados")
 proyectos = get_proyectos()

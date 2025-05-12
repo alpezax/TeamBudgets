@@ -1,6 +1,6 @@
 import streamlit as st
+from components.auth import authenticate
 from components.sidebar import sidebar_config 
-
 st.set_page_config(page_title="Panel de Control", layout="wide")
 sidebar_config()
 st.markdown("""

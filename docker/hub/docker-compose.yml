@@ -18,6 +18,9 @@ services:
       - "8502:8501"
     environment:
       API_URL: http://teambudgets-service:8000
+      AUTH_CONFIG_FILE: /app/config.yaml
+    volumes:
+      - ./config.yaml:/app/config.yaml
     depends_on:
       - teambudgets-service
     networks:

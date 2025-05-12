@@ -1,11 +1,15 @@
 import streamlit as st
 from components.sidebar import sidebar_config 
 from utils.objectApiCall import *
-
-
+from components.auth import authenticate
 
 # Título de la aplicación
 st.title("Gestión de Trabajadores")
+
+# Autenticación
+if not authenticate():
+    st.stop()
+    
 sidebar_config()
 
 # Mostrar todos los trabajadores
