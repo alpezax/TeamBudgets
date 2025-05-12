@@ -10,7 +10,6 @@ st.title("Gestión de Categorías de Trabajador")
 if not authenticate():
     st.stop()
 
-
 sidebar_config()
 
 # Mostrar todas las categorías
