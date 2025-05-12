@@ -54,14 +54,14 @@
             <p>{{ total_balance | round(2) }} €</p>
         </div>
 
-<!-- ESTADO PROYECTOS -->
+        <!-- ESTADO PROYECTOS -->
         <div class="page-break"></div>
         <h2>Estado de los Proyectos</h2>
 
         {% for proyecto in estadoproyectos %}
             <div class="estado-proyecto">
                 <h3>{{ proyecto.nombre }}</h3>
-                
+                <p>{{ proyecto.descripcion }}</p>
                 <table class="tabla-proyectos">
                     <thead>
                         <tr>
@@ -127,7 +127,7 @@
         {% endfor %}
 
 
-<!-- Imputaciones -->
+        <!-- Imputaciones -->
         <div class="page-break"></div>
         <h2>Imputaciones por colaborador</h2>
         
