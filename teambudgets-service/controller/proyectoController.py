@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Optional, List
 from model.proyecto import Proyecto
+from services import proyectoService 
 
 router = APIRouter()
 proyecto_model = Proyecto()
@@ -137,3 +138,15 @@ async def get_tarifa_hora(id_str: str):
     if tarifa is None:
         raise HTTPException(status_code=404, detail="Tarifa-hora not found")
     return tarifa
+
+
+# Endpoint para obtener todos los proyectos con el campo "avance"
+@router.get("/proyectos/enriquecidos", response_model=list)
+async def get_all_proyectos_con_avance():
+    return proyectoService.get_all_proyectos()
+
+
+# Endpoint para obtener los proyectos de un equipo con el campo "avance"
+@router.get("/equipo/{equipo_id}/proyectos/enriquecidos", response_model=list)
+async def get_proyectos_equipo_con_avance(equipo_id: str):
+    return proyectoService.get_proyectos_de_equipo(equipo_id)

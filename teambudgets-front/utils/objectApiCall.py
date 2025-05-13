@@ -148,6 +148,14 @@ def set_margen_contrato(id, yyyy_mm, valor):
 def get_tarifa_hora(id):
     return requests.get(f"{API_URL}/proyecto/{id}/tarifa-hora").json()
 
+# Obtener todos los proyectos con el campo "avance"
+def get_proyectos_con_avance():
+    return requests.get(f"{API_URL}/proyectos/enriquecidos").json()
+
+# Obtener los proyectos de un equipo con el campo "avance"
+def get_proyectos_de_equipo_con_avance(equipo_id):
+    return requests.get(f"{API_URL}/equipo/{equipo_id}/proyectos/enriquecidos").json()
+
 #************************************************************************
 # Funciones de la API para Constantes
 #************************************************************************
