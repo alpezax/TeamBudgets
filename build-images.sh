@@ -11,7 +11,7 @@ pip show pipreqs > /dev/null 2>&1 || pip3 install pipreqs --break-system-package
 
 echo -e "${GREEN}Generando requirements.txt para teambudgets-front...${NC}"
 cd teambudgets-front
-pipreqs . --force
+#pipreqs . --force
 cd ..
 
 echo -e "${GREEN}Generando requirements.txt para teambudgets-service...${NC}"
